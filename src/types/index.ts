@@ -95,6 +95,8 @@ export interface DailyStats {
   feedingTotalAmount: number;
   breastLeftDuration: number;
   breastRightDuration: number;
+  bottleAmount: number;
+  formulaAmount: number;
   solidCount: number;
   diaperCount: number;
   sleepTotalDuration: number;

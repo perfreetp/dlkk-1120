@@ -57,9 +57,19 @@ const RecordPage: React.FC = () => {
 
   const handleRecordClick = (record: BabyRecord) => {
     Taro.showActionSheet({
-      itemList: ['删除记录'],
+      itemList: ['查看编辑', '删除记录'],
       success: (res) => {
         if (res.tapIndex === 0) {
+          const pageMap: Record<string, string> = {
+            feeding: `/pages/feeding-edit/index?id=${record.id}`,
+            solid: `/pages/solid-edit/index?id=${record.id}`,
+            diaper: `/pages/diaper-edit/index?id=${record.id}`,
+            sleep: `/pages/sleep-edit/index?id=${record.id}`,
+            growth: `/pages/growth-edit/index?id=${record.id}`
+          };
+          const url = pageMap[record.type];
+          if (url) Taro.navigateTo({ url });
+        } else if (res.tapIndex === 1) {
           deleteRecord(record.id);
           Taro.showToast({ title: '已删除', icon: 'success' });
         }

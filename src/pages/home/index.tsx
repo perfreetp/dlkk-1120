@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, Image, ScrollView, Button } from '@tarojs/components';
+import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
@@ -162,6 +162,16 @@ const HomePage: React.FC = () => {
                   success: (res) => {
                     if (res.tapIndex === 0) {
                       handleDeleteRecord(record.id);
+                    } else if (res.tapIndex === 1) {
+                      const pageMap: Record<string, string> = {
+                        feeding: `/pages/feeding-edit/index?id=${record.id}`,
+                        solid: `/pages/solid-edit/index?id=${record.id}`,
+                        diaper: `/pages/diaper-edit/index?id=${record.id}`,
+                        sleep: `/pages/sleep-edit/index?id=${record.id}`,
+                        growth: `/pages/growth-edit/index?id=${record.id}`
+                      };
+                      const url = pageMap[record.type];
+                      if (url) Taro.navigateTo({ url });
                     }
                   }
                 });

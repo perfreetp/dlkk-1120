@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, Textarea } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Textarea, Image } from '@tarojs/components';
+import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
-import type { DiaperColor, DiaperTexture } from '@/types';
+import type { DiaperColor, DiaperTexture, DiaperRecord } from '@/types';
+import { formatDateTime } from '@/utils';
 
 const colorOptions: { value: DiaperColor; label: string }[] = [
   { value: 'yellow', label: '黄色' },
@@ -25,12 +26,90 @@ const textureOptions: { value: DiaperTexture; label: string }[] = [
 ];
 
 const DiaperEditPage: React.FC = () => {
-  const { addRecord } = useBabyStore();
+  const router = useRouter();
+  const { addRecord, updateRecord, records } = useBabyStore();
+
+  const editId = router.params.id;
+  const isEdit = !!editId;
+
   const [hasPee, setHasPee] = useState(true);
   const [hasPoop, setHasPoop] = useState(false);
   const [color, setColor] = useState<DiaperColor>('yellow');
   const [texture, setTexture] = useState<DiaperTexture>('normal');
   const [note, setNote] = useState('');
+  const [timestamp, setTimestamp] = useState(Date.now());
+  const [photos, setPhotos] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (isEdit) {
+      const record = records.find((r) => r.id === editId) as DiaperRecord;
+      if (record) {
+        setHasPee(record.hasPee);
+        setHasPoop(record.hasPoop);
+        setColor(record.color);
+        setTexture(record.texture);
+        setNote(record.note || '');
+        setTimestamp(record.timestamp);
+        setPhotos(record.photos || []);
+        Taro.setNavigationBarTitle({ title: '编辑尿布记录' });
+      }
+    }
+  }, [isEdit, editId, records]);
+
+  const handleChooseImage = () => {
+    Taro.chooseImage({
+      count: 9 - photos.length,
+      success: (res) => {
+        setPhotos([...photos, ...res.tempFilePaths]);
+      }
+    });
+  };
+
+  const handlePreviewImage = (url: string) => {
+    Taro.previewImage({
+      current: url,
+      urls: photos
+    });
+  };
+
+  const handleDeletePhoto = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index));
+  };
+
+  const handleChooseTime = () => {
+    Taro.showActionSheet({
+      itemList: ['选择日期', '选择时间'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          const dateStr = new Date(timestamp).toISOString().split('T')[0];
+          const _taro = Taro as any;
+          _taro.showDatePicker?.({
+            format: 'YYYY-MM-DD',
+            currentDate: dateStr,
+            success: (dateRes: any) => {
+              const newDate = new Date(dateRes.detail.value || dateRes.value);
+              const oldDate = new Date(timestamp);
+              newDate.setHours(oldDate.getHours(), oldDate.getMinutes());
+              setTimestamp(newDate.getTime());
+            }
+          }) || Taro.showToast({ title: '请手动设置时间', icon: 'none' });
+        } else if (res.tapIndex === 1) {
+          const timeStr = new Date(timestamp).toTimeString().slice(0, 5);
+          const _taro = Taro as any;
+          _taro.showTimePicker?.({
+            format: 'HH:mm',
+            currentTime: timeStr,
+            success: (timeRes: any) => {
+              const [hours, minutes] = (timeRes.detail.value || timeRes.value).split(':').map(Number);
+              const newDate = new Date(timestamp);
+              newDate.setHours(hours, minutes);
+              setTimestamp(newDate.getTime());
+            }
+          }) || Taro.showToast({ title: '请手动设置时间', icon: 'none' });
+        }
+      }
+    });
+  };
 
   const handleSubmit = () => {
     if (!hasPee && !hasPoop) {
@@ -38,18 +117,25 @@ const DiaperEditPage: React.FC = () => {
       return;
     }
 
-    addRecord({
-      type: 'diaper',
+    const recordData = {
+      type: 'diaper' as const,
       hasPee,
       hasPoop,
       color,
       texture: hasPoop ? texture : 'normal',
-      timestamp: Date.now(),
+      timestamp,
       note: note || undefined,
+      photos: photos.length > 0 ? photos : undefined,
       createdBy: '妈妈'
-    } as any);
+    };
 
-    Taro.showToast({ title: '记录成功', icon: 'success' });
+    if (isEdit) {
+      updateRecord(editId, recordData as any);
+      Taro.showToast({ title: '修改成功', icon: 'success' });
+    } else {
+      addRecord(recordData as any);
+      Taro.showToast({ title: '记录成功', icon: 'success' });
+    }
     setTimeout(() => Taro.navigateBack(), 1000);
   };
 
@@ -115,6 +201,39 @@ const DiaperEditPage: React.FC = () => {
             </View>
           </>
         )}
+      </View>
+
+      <View className={styles.card} onClick={handleChooseTime}>
+        <Text className={styles.cardTitle}>记录时间</Text>
+        <View className={styles.timeRow}>
+          <Text className={styles.timeValue}>{formatDateTime(timestamp)}</Text>
+          <Text className={styles.timeArrow}>›</Text>
+        </View>
+      </View>
+
+      <View className={styles.card}>
+        <Text className={styles.cardTitle}>照片附件</Text>
+        <View className={styles.photoGrid}>
+          {photos.map((photo, index) => (
+            <View key={index} className={styles.photoItem}>
+              <Image
+                className={styles.photoImg}
+                src={photo}
+                mode="aspectFill"
+                onClick={() => handlePreviewImage(photo)}
+              />
+              <View className={styles.photoDelete} onClick={() => handleDeletePhoto(index)}>
+                <Text className={styles.photoDeleteText}>×</Text>
+              </View>
+            </View>
+          ))}
+          {photos.length < 9 && (
+            <View className={styles.photoAdd} onClick={handleChooseImage}>
+              <Text className={styles.photoAddIcon}>+</Text>
+              <Text className={styles.photoAddText}>添加照片</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       <View className={styles.card}>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Input, Textarea } from '@tarojs/components';
+import { View, Text, Textarea, Image } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
-import type { FeedingSubType } from '@/types';
+import type { FeedingSubType, FeedingRecord } from '@/types';
+import { formatDateTime } from '@/utils';
 
 const typeOptions: { value: FeedingSubType; icon: string; label: string }[] = [
   { value: 'breast_left', icon: '🤱', label: '母乳左侧' },
@@ -15,7 +16,10 @@ const typeOptions: { value: FeedingSubType; icon: string; label: string }[] = [
 
 const FeedingEditPage: React.FC = () => {
   const router = useRouter();
-  const { addRecord } = useBabyStore();
+  const { addRecord, updateRecord, records } = useBabyStore();
+
+  const editId = router.params.id;
+  const isEdit = !!editId;
 
   const initialType = (router.params.subType as FeedingSubType) || 'breast_left';
   const [subType, setSubType] = useState<FeedingSubType>(initialType);
@@ -25,8 +29,27 @@ const FeedingEditPage: React.FC = () => {
   const [formulaAmount, setFormulaAmount] = useState(5);
   const [formulaWaterTemp, setFormulaWaterTemp] = useState(45);
   const [note, setNote] = useState('');
+  const [timestamp, setTimestamp] = useState(Date.now());
+  const [photos, setPhotos] = useState<string[]>([]);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (isEdit) {
+      const record = records.find((r) => r.id === editId) as FeedingRecord;
+      if (record) {
+        setSubType(record.subType);
+        setDuration(record.duration || 0);
+        setAmount(record.amount || 120);
+        setFormulaAmount(record.formulaAmount || 5);
+        setFormulaWaterTemp(record.formulaWaterTemp || 45);
+        setNote(record.note || '');
+        setTimestamp(record.timestamp);
+        setPhotos(record.photos || []);
+        Taro.setNavigationBarTitle({ title: '编辑喂奶记录' });
+      }
+    }
+  }, [isEdit, editId, records]);
 
   useEffect(() => {
     if (isRunning) {
@@ -50,12 +73,68 @@ const FeedingEditPage: React.FC = () => {
     return `${m}:${s}`;
   };
 
+  const handleChooseImage = () => {
+    Taro.chooseImage({
+      count: 9 - photos.length,
+      success: (res) => {
+        setPhotos([...photos, ...res.tempFilePaths]);
+      }
+    });
+  };
+
+  const handlePreviewImage = (url: string) => {
+    Taro.previewImage({
+      current: url,
+      urls: photos
+    });
+  };
+
+  const handleDeletePhoto = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index));
+  };
+
+  const handleChooseTime = () => {
+    const dateStr = new Date(timestamp).toISOString().split('T')[0];
+    const timeStr = new Date(timestamp).toTimeString().slice(0, 5);
+    Taro.showActionSheet({
+      itemList: ['选择日期', '选择时间'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          const _taro = Taro as any;
+          _taro.showDatePicker?.({
+            format: 'YYYY-MM-DD',
+            currentDate: dateStr,
+            success: (dateRes: any) => {
+              const newDate = new Date(dateRes.detail.value || dateRes.value);
+              const oldDate = new Date(timestamp);
+              newDate.setHours(oldDate.getHours(), oldDate.getMinutes());
+              setTimestamp(newDate.getTime());
+            }
+          }) || Taro.showToast({ title: '请手动设置时间', icon: 'none' });
+        } else if (res.tapIndex === 1) {
+          const _taro = Taro as any;
+          _taro.showTimePicker?.({
+            format: 'HH:mm',
+            currentTime: timeStr,
+            success: (timeRes: any) => {
+              const [hours, minutes] = (timeRes.detail.value || timeRes.value).split(':').map(Number);
+              const newDate = new Date(timestamp);
+              newDate.setHours(hours, minutes);
+              setTimestamp(newDate.getTime());
+            }
+          }) || Taro.showToast({ title: '请手动设置时间', icon: 'none' });
+        }
+      }
+    });
+  };
+
   const handleSubmit = () => {
     const record: any = {
       type: 'feeding',
       subType,
-      timestamp: Date.now(),
+      timestamp,
       note: note || undefined,
+      photos: photos.length > 0 ? photos : undefined,
       createdBy: '妈妈'
     };
 
@@ -73,8 +152,13 @@ const FeedingEditPage: React.FC = () => {
       record.formulaWaterTemp = formulaWaterTemp;
     }
 
-    addRecord(record);
-    Taro.showToast({ title: '记录成功', icon: 'success' });
+    if (isEdit) {
+      updateRecord(editId, record);
+      Taro.showToast({ title: '修改成功', icon: 'success' });
+    } else {
+      addRecord(record);
+      Taro.showToast({ title: '记录成功', icon: 'success' });
+    }
     setTimeout(() => Taro.navigateBack(), 1000);
   };
 
@@ -199,6 +283,39 @@ const FeedingEditPage: React.FC = () => {
           </View>
         </View>
       )}
+
+      <View className={styles.card} onClick={handleChooseTime}>
+        <Text className={styles.cardTitle}>记录时间</Text>
+        <View className={styles.timeRow}>
+          <Text className={styles.timeValue}>{formatDateTime(timestamp)}</Text>
+          <Text className={styles.timeArrow}>›</Text>
+        </View>
+      </View>
+
+      <View className={styles.card}>
+        <Text className={styles.cardTitle}>照片附件</Text>
+        <View className={styles.photoGrid}>
+          {photos.map((photo, index) => (
+            <View key={index} className={styles.photoItem}>
+              <Image
+                className={styles.photoImg}
+                src={photo}
+                mode="aspectFill"
+                onClick={() => handlePreviewImage(photo)}
+              />
+              <View className={styles.photoDelete} onClick={() => handleDeletePhoto(index)}>
+                <Text className={styles.photoDeleteText}>×</Text>
+              </View>
+            </View>
+          ))}
+          {photos.length < 9 && (
+            <View className={styles.photoAdd} onClick={handleChooseImage}>
+              <Text className={styles.photoAddIcon}>+</Text>
+              <Text className={styles.photoAddText}>添加照片</Text>
+            </View>
+          )}
+        </View>
+      </View>
 
       <View className={styles.card}>
         <Text className={styles.cardTitle}>备注</Text>

@@ -20,6 +20,28 @@
   margin-bottom: $spacing-lg;
 }
 
+.presetList {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.presetBtn {
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+}
+
+.presetBtnActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
 .dateRange {
   display: flex;
   gap: $spacing-md;
@@ -143,9 +165,30 @@
   padding: $spacing-md $page-padding;
   padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
   box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.previewBtn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .exportBtn {
+  flex: 1;
   height: $button-height-lg;
   border-radius: $radius-button;
   display: flex;

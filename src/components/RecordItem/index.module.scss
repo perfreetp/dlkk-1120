@@ -65,6 +65,36 @@
   margin-bottom: $spacing-xs;
 }
 
+.photoRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin: $spacing-sm 0;
+}
+
+.thumbImg {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-sm;
+  object-fit: cover;
+}
+
+.photoMore {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-sm;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photoMoreText {
+  color: #fff;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
 .meta {
   display: flex;
   align-items: center;

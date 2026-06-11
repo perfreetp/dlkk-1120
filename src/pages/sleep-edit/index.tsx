@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, Textarea, Picker } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import React, { useState, useMemo, useEffect } from 'react';
+import { View, Text, Textarea, Image, Picker } from '@tarojs/components';
+import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
-import type { SleepQuality } from '@/types';
+import type { SleepQuality, SleepRecord } from '@/types';
 import dayjs from 'dayjs';
 
 const qualityOptions: { value: SleepQuality; icon: string; label: string }[] = [
@@ -16,13 +16,34 @@ const qualityOptions: { value: SleepQuality; icon: string; label: string }[] = [
 const envOptions = ['安静', '吵闹', '开灯', '关灯', '抱睡', '哄睡', '自己睡'];
 
 const SleepEditPage: React.FC = () => {
-  const { addRecord } = useBabyStore();
+  const router = useRouter();
+  const { addRecord, updateRecord, records } = useBabyStore();
+
+  const editId = router.params.id;
+  const isEdit = !!editId;
+
   const now = Date.now();
   const [startTime, setStartTime] = useState(now - 1000 * 60 * 90);
   const [endTime, setEndTime] = useState(now);
   const [quality, setQuality] = useState<SleepQuality>('good');
   const [environment, setEnvironment] = useState<string>('');
   const [note, setNote] = useState('');
+  const [photos, setPhotos] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (isEdit) {
+      const record = records.find((r) => r.id === editId) as SleepRecord;
+      if (record) {
+        setStartTime(record.startTime);
+        setEndTime(record.endTime);
+        setQuality(record.quality);
+        setEnvironment(record.environment || '');
+        setNote(record.note || '');
+        setPhotos(record.photos || []);
+        Taro.setNavigationBarTitle({ title: '编辑睡眠记录' });
+      }
+    }
+  }, [isEdit, editId, records]);
 
   const duration = useMemo(() => {
     return Math.max(0, Math.floor((endTime - startTime) / 1000));
@@ -35,24 +56,51 @@ const SleepEditPage: React.FC = () => {
     return `${m}分钟`;
   };
 
+  const handleChooseImage = () => {
+    Taro.chooseImage({
+      count: 9 - photos.length,
+      success: (res) => {
+        setPhotos([...photos, ...res.tempFilePaths]);
+      }
+    });
+  };
+
+  const handlePreviewImage = (url: string) => {
+    Taro.previewImage({
+      current: url,
+      urls: photos
+    });
+  };
+
+  const handleDeletePhoto = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = () => {
     if (duration < 60) {
       Taro.showToast({ title: '睡眠时间至少1分钟', icon: 'none' });
       return;
     }
 
-    addRecord({
-      type: 'sleep',
+    const recordData = {
+      type: 'sleep' as const,
       startTime,
       endTime,
       quality,
       environment: environment || undefined,
       note: note || undefined,
+      photos: photos.length > 0 ? photos : undefined,
       timestamp: startTime,
       createdBy: '妈妈'
-    } as any);
+    };
 
-    Taro.showToast({ title: '记录成功', icon: 'success' });
+    if (isEdit) {
+      updateRecord(editId, recordData as any);
+      Taro.showToast({ title: '修改成功', icon: 'success' });
+    } else {
+      addRecord(recordData as any);
+      Taro.showToast({ title: '记录成功', icon: 'success' });
+    }
     setTimeout(() => Taro.navigateBack(), 1000);
   };
 
@@ -122,6 +170,31 @@ const SleepEditPage: React.FC = () => {
               </Text>
             ))}
           </View>
+        </View>
+      </View>
+
+      <View className={styles.card}>
+        <Text className={styles.cardTitle}>照片附件</Text>
+        <View className={styles.photoGrid}>
+          {photos.map((photo, index) => (
+            <View key={index} className={styles.photoItem}>
+              <Image
+                className={styles.photoImg}
+                src={photo}
+                mode="aspectFill"
+                onClick={() => handlePreviewImage(photo)}
+              />
+              <View className={styles.photoDelete} onClick={() => handleDeletePhoto(index)}>
+                <Text className={styles.photoDeleteText}>×</Text>
+              </View>
+            </View>
+          ))}
+          {photos.length < 9 && (
+            <View className={styles.photoAdd} onClick={handleChooseImage}>
+              <Text className={styles.photoAddIcon}>+</Text>
+              <Text className={styles.photoAddText}>添加照片</Text>
+            </View>
+          )}
         </View>
       </View>
 

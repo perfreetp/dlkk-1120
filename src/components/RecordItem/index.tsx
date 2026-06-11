@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text } from '@tarojs/components';
+import { View, Text, Image } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import type { BabyRecord } from '@/types';
-import { formatDuration, formatTime, getFeedingTypeLabel, getTimeAgo } from '@/utils';
+import { formatDuration, getFeedingTypeLabel, getTimeAgo } from '@/utils';
 
 interface RecordItemProps {
   record: BabyRecord;
@@ -50,7 +51,7 @@ const getRecordDetail = (record: BabyRecord): { icon: string; title: string; det
         detail: `${formatDuration((record.endTime - record.startTime) / 1000)} · 质量${sleepQualityMap[record.quality]}`
       };
     case 'growth':
-      const parts = [];
+      const parts: string[] = [];
       if (record.height) parts.push(`身高${record.height}cm`);
       if (record.weight) parts.push(`体重${record.weight}kg`);
       if (record.headCircumference) parts.push(`头围${record.headCircumference}cm`);
@@ -62,6 +63,17 @@ const getRecordDetail = (record: BabyRecord): { icon: string; title: string; det
 
 const RecordItem: React.FC<RecordItemProps> = ({ record, onClick }) => {
   const { icon, title, detail } = getRecordDetail(record);
+  const hasPhotos = record.photos && record.photos.length > 0;
+
+  const handlePhotoClick = (e: any) => {
+    e.stopPropagation?.();
+    if (hasPhotos) {
+      Taro.previewImage({
+        current: record.photos![0],
+        urls: record.photos!
+      });
+    }
+  };
 
   return (
     <View className={styles.recordItem} onClick={onClick}>
@@ -74,6 +86,24 @@ const RecordItem: React.FC<RecordItemProps> = ({ record, onClick }) => {
           <Text className={styles.time}>{getTimeAgo(record.timestamp)}</Text>
         </View>
         <Text className={styles.detail}>{detail}</Text>
+        {hasPhotos && (
+          <View className={styles.photoRow}>
+            {record.photos!.slice(0, 4).map((photo, idx) => (
+              <Image
+                key={idx}
+                className={styles.thumbImg}
+                src={photo}
+                mode="aspectFill"
+                onClick={handlePhotoClick}
+              />
+            ))}
+            {record.photos!.length > 4 && (
+              <View className={styles.photoMore}>
+                <Text className={styles.photoMoreText}>+{record.photos!.length - 4}</Text>
+              </View>
+            )}
+          </View>
+        )}
         <View className={styles.meta}>
           {record.note && <Text className={styles.note}>📝 {record.note}</Text>}
           <Text className={styles.author}>{record.createdBy}</Text>

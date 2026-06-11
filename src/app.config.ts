@@ -12,6 +12,7 @@ export default defineAppConfig({
     'pages/growth-edit/index',
     'pages/statistics/index',
     'pages/export/index',
+    'pages/report-preview/index',
     'pages/family/index'
   ],
   window: {

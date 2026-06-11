@@ -4,7 +4,7 @@ import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
 import { BarChart } from '@/components/Chart';
-import { calculateDailyStats, getDateList, formatDuration } from '@/utils';
+import { calculateDailyStats, getDateList, getMonthDateList, formatDuration } from '@/utils';
 import dayjs from 'dayjs';
 
 type RangeType = 'day' | 'week' | 'month';
@@ -13,12 +13,14 @@ const StatisticsPage: React.FC = () => {
   const { records } = useBabyStore();
   const [range, setRange] = useState<RangeType>('week');
 
-  const days = range === 'day' ? 1 : range === 'week' ? 7 : 30;
-  const dateList = getDateList(days);
+  const dateList = useMemo(() => {
+    if (range === 'day') return getDateList(1);
+    if (range === 'week') return getDateList(7);
+    return getMonthDateList();
+  }, [range]);
 
   const statsData = useMemo(() => {
-    const list = dateList.map((date) => calculateDailyStats(records, date));
-    return list;
+    return dateList.map((date) => calculateDailyStats(records, date));
   }, [records, dateList]);
 
   const totalStats = useMemo(() => {
@@ -28,32 +30,41 @@ const StatisticsPage: React.FC = () => {
         solid: acc.solid + cur.solidCount,
         diaper: acc.diaper + cur.diaperCount,
         sleep: acc.sleep + cur.sleepTotalDuration,
-        milk: acc.milk + cur.feedingTotalAmount
+        milk: acc.milk + cur.feedingTotalAmount,
+        breastLeft: acc.breastLeft + cur.breastLeftDuration,
+        breastRight: acc.breastRight + cur.breastRightDuration,
+        bottle: acc.bottle + cur.bottleAmount,
+        formula: acc.formula + cur.formulaAmount
       }),
-      { feeding: 0, solid: 0, diaper: 0, sleep: 0, milk: 0 }
+      { feeding: 0, solid: 0, diaper: 0, sleep: 0, milk: 0, breastLeft: 0, breastRight: 0, bottle: 0, formula: 0 }
     );
   }, [statsData]);
 
+  const chartDataCount = range === 'day' ? 1 : range === 'week' ? 7 : Math.min(30, dateList.length);
+  const chartStats = statsData.slice(-chartDataCount);
+
   const feedingChartData = useMemo(() => {
-    return statsData.slice(-7).map((s) => ({
+    return chartStats.map((s) => ({
       label: dayjs(s.date).format('DD'),
       value: s.feedingCount
     }));
-  }, [statsData]);
+  }, [chartStats]);
 
   const diaperChartData = useMemo(() => {
-    return statsData.slice(-7).map((s) => ({
+    return chartStats.map((s) => ({
       label: dayjs(s.date).format('DD'),
       value: s.diaperCount
     }));
-  }, [statsData]);
+  }, [chartStats]);
 
   const sleepChartData = useMemo(() => {
-    return statsData.slice(-7).map((s) => ({
+    return chartStats.map((s) => ({
       label: dayjs(s.date).format('DD'),
       value: Math.round(s.sleepTotalDuration / 3600 * 10) / 10
     }));
-  }, [statsData]);
+  }, [chartStats]);
+
+  const rangeLabel = range === 'day' ? '今日' : range === 'week' ? '本周' : '本月';
 
   return (
     <View className={styles.page}>
@@ -105,16 +116,54 @@ const StatisticsPage: React.FC = () => {
           </View>
         </View>
 
-        <View className={styles.chartSection}>
-          <BarChart title="近7天喂奶次数" data={feedingChartData} />
+        <View className={styles.detailCard}>
+          <Text className={styles.detailTitle}>🍼 {rangeLabel}喂奶明细</Text>
+          <View className={styles.detailGrid}>
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>母乳左侧</Text>
+              <Text className={styles.detailValue}>{formatDuration(totalStats.breastLeft)}</Text>
+            </View>
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>母乳右侧</Text>
+              <Text className={styles.detailValue}>{formatDuration(totalStats.breastRight)}</Text>
+            </View>
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>瓶喂总量</Text>
+              <Text className={styles.detailValue}>{totalStats.bottle}ml</Text>
+            </View>
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>配方奶量</Text>
+              <Text className={styles.detailValue}>{totalStats.formula}ml</Text>
+            </View>
+          </View>
+        </View>
+
+        <View className={styles.detailCard}>
+          <Text className={styles.detailTitle}>😴 {rangeLabel}睡眠统计</Text>
+          <View className={styles.detailGrid}>
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>总时长</Text>
+              <Text className={styles.detailValue}>{formatDuration(totalStats.sleep)}</Text>
+            </View>
+            <View className={styles.detailItem}>
+              <Text className={styles.detailLabel}>日均时长</Text>
+              <Text className={styles.detailValue}>
+                {chartStats.length > 0 ? formatDuration(Math.round(totalStats.sleep / chartStats.length)) : '0分钟'}
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View className={styles.chartSection}>
-          <BarChart title="近7天尿布次数" data={diaperChartData} />
+          <BarChart title={`${rangeLabel}喂奶次数趋势`} data={feedingChartData} />
         </View>
 
         <View className={styles.chartSection}>
-          <BarChart title="近7天睡眠时长(小时)" data={sleepChartData} />
+          <BarChart title={`${rangeLabel}尿布次数趋势`} data={diaperChartData} />
+        </View>
+
+        <View className={styles.chartSection}>
+          <BarChart title={`${rangeLabel}睡眠时长趋势(小时)`} data={sleepChartData} />
         </View>
       </ScrollView>
     </View>

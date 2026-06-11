@@ -83,6 +83,8 @@ export const calculateDailyStats = (records: BabyRecord[], date: string): DailyS
     feedingTotalAmount: 0,
     breastLeftDuration: 0,
     breastRightDuration: 0,
+    bottleAmount: 0,
+    formulaAmount: 0,
     solidCount: 0,
     diaperCount: 0,
     sleepTotalDuration: 0,
@@ -96,7 +98,11 @@ export const calculateDailyStats = (records: BabyRecord[], date: string): DailyS
         stats.breastLeftDuration += record.duration || 0;
       } else if (record.subType === 'breast_right') {
         stats.breastRightDuration += record.duration || 0;
-      } else if (record.subType === 'bottle' || record.subType === 'formula') {
+      } else if (record.subType === 'bottle') {
+        stats.bottleAmount += record.amount || 0;
+        stats.feedingTotalAmount += record.amount || 0;
+      } else if (record.subType === 'formula') {
+        stats.formulaAmount += record.amount || 0;
         stats.feedingTotalAmount += record.amount || 0;
       }
     } else if (record.type === 'solid') {
@@ -116,6 +122,15 @@ export const getDateList = (days: number): string[] => {
   const list: string[] = [];
   for (let i = days - 1; i >= 0; i--) {
     list.push(dayjs().subtract(i, 'day').format('YYYY-MM-DD'));
+  }
+  return list;
+};
+
+export const getMonthDateList = (): string[] => {
+  const list: string[] = [];
+  const daysInMonth = dayjs().daysInMonth();
+  for (let i = 1; i <= daysInMonth; i++) {
+    list.push(dayjs().date(i).format('YYYY-MM-DD'));
   }
   return list;
 };
