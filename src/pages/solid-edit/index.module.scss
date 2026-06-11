@@ -1,0 +1,201 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 200rpx;
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.cardTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+}
+
+.ingredientGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-sm;
+}
+
+.ingredientTag {
+  padding: $spacing-sm $spacing-xs;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.ingredientTagActive {
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.15) 0%, rgba(255, 176, 136, 0.15) 100%);
+  border-color: $color-primary;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.amountRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+}
+
+.amountLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.amountWrap {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.counterBtn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+  background: $color-bg-hover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.amountValue {
+  min-width: 100rpx;
+  text-align: center;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.amountUnit {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+}
+
+.allergySection {
+  margin-top: $spacing-md;
+}
+
+.allergyTitle {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+}
+
+.allergyLevels {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.allergyLevel {
+  flex: 1;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  text-align: center;
+  font-size: $font-size-sm;
+  background: $color-bg-page;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.allergyLevelActive {
+  border-color: $color-error;
+  background: rgba(255, 77, 79, 0.1);
+  color: $color-error;
+  font-weight: $font-weight-medium;
+}
+
+.symptomGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+
+.symptomTag {
+  padding: $spacing-sm $spacing-xs;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+}
+
+.symptomTagActive {
+  background: rgba(255, 77, 79, 0.1);
+  border-color: $color-error;
+  color: $color-error;
+}
+
+.noteInput {
+  width: 100%;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  min-height: 160rpx;
+  border: none;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.btn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btnCancel {
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.btnSubmit {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+}

@@ -1,0 +1,183 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 200rpx;
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.cardTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.timeLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.timeValue {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.durationDisplay {
+  text-align: center;
+  padding: $spacing-lg 0;
+  background: linear-gradient(135deg, rgba(179, 127, 235, 0.1) 0%, rgba(110, 197, 255, 0.1) 100%);
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.durationLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.durationValue {
+  font-size: 56rpx;
+  font-weight: $font-weight-bold;
+  color: $color-sleep;
+  font-family: monospace;
+}
+
+.qualitySection {
+  margin-top: $spacing-md;
+}
+
+.qualityLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+}
+
+.qualityGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+
+.qualityItem {
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  text-align: center;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.qualityItemActive {
+  background: linear-gradient(135deg, rgba(179, 127, 235, 0.15) 0%, rgba(110, 197, 255, 0.15) 100%);
+  border-color: $color-sleep;
+}
+
+.qualityIcon {
+  font-size: 40rpx;
+  margin-bottom: $spacing-xs;
+}
+
+.qualityText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.qualityItemActive .qualityText {
+  color: $color-sleep;
+  font-weight: $font-weight-semibold;
+}
+
+.envOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.envTag {
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.envTagActive {
+  background: linear-gradient(135deg, rgba(179, 127, 235, 0.1) 0%, rgba(110, 197, 255, 0.1) 100%);
+  border-color: $color-sleep;
+  color: $color-sleep;
+  font-weight: $font-weight-medium;
+}
+
+.noteInput {
+  width: 100%;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  min-height: 160rpx;
+  border: none;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.btn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btnCancel {
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.btnSubmit {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+}

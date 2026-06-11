@@ -1,0 +1,139 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: 100rpx $page-padding $spacing-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: 0 0 40rpx 40rpx;
+  color: $color-text-white;
+}
+
+.babyInfo {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.3);
+  margin-right: $spacing-md;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.babyName {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+}
+
+.genderTag {
+  font-size: $font-size-xs;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 4rpx 16rpx;
+  border-radius: $radius-xs;
+}
+
+.babyAge {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.lastRecord {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  backdrop-filter: blur(10rpx);
+}
+
+.lastLabel {
+  font-size: $font-size-xs;
+  opacity: 0.8;
+  margin-bottom: $spacing-xs;
+}
+
+.lastText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.content {
+  padding: 0 $page-padding;
+  margin-top: -$spacing-sm;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.dateTabs {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  padding: 6rpx;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.dateTab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm 0;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+}
+
+.dateTabActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.quickActions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.recordsList {
+  margin-bottom: $spacing-lg;
+}
+
+.undoToast {
+  position: fixed;
+  bottom: 160rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(45, 45, 45, 0.9);
+  color: $color-text-white;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.undoBtn {
+  color: $color-primary-light;
+  font-weight: $font-weight-semibold;
+}

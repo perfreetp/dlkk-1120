@@ -1,0 +1,163 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 200rpx;
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.cardTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+}
+
+.dateRange {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.dateItem {
+  flex: 1;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.dateLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.dateValue {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.typeList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+}
+
+.typeItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.typeItemActive {
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.1) 0%, rgba(255, 176, 136, 0.1) 100%);
+  border-color: $color-primary;
+}
+
+.checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-xs;
+  border: 3rpx solid $color-border;
+  margin-right: $spacing-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+}
+
+.checkboxActive {
+  background: $color-primary;
+  border-color: $color-primary;
+}
+
+.checkIcon {
+  color: $color-text-white;
+  font-size: 22rpx;
+  font-weight: $font-weight-bold;
+}
+
+.typeText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.typeItemActive .typeText {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.formatList {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.formatItem {
+  flex: 1;
+  padding: $spacing-lg;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  text-align: center;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.formatItemActive {
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.1) 0%, rgba(255, 176, 136, 0.1) 100%);
+  border-color: $color-primary;
+}
+
+.formatIcon {
+  font-size: 48rpx;
+  margin-bottom: $spacing-xs;
+}
+
+.formatLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.formatItemActive .formatLabel {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.exportBtn {
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
