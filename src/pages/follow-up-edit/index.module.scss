@@ -191,3 +191,142 @@
   background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
   color: $color-text-white;
 }
+
+.btnNext {
+  background: linear-gradient(135deg, #2196F3 0%, #4FC3F7 100%);
+  color: $color-text-white;
+}
+
+.btnTertiary {
+  background: $color-bg-hover;
+  color: $color-primary;
+  flex: 0 0 auto;
+  padding: 0 $spacing-md;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+}
+
+.relatedList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.relatedItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.relatedItemSelected {
+  background: rgba(255, 138, 155, 0.08);
+  border-color: $color-primary;
+}
+
+.relatedCheck {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  border: 2rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4rpx;
+  flex-shrink: 0;
+}
+
+.relatedCheckActive {
+  background: $color-primary;
+  border-color: $color-primary;
+}
+
+.relatedCheckIcon {
+  color: $color-text-white;
+  font-size: 22rpx;
+  font-weight: $font-weight-bold;
+}
+
+.relatedContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.relatedType {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  margin-right: $spacing-xs;
+}
+
+.relatedText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.relatedTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-top: 4rpx;
+}
+
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.reviewItem {
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  border-left: 6rpx solid #4CAF50;
+}
+
+.reviewMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+  display: flex;
+  justify-content: space-between;
+}
+
+.reviewContinueTag {
+  font-size: 20rpx;
+  padding: 2rpx 10rpx;
+  border-radius: $radius-xs;
+  background: rgba(255, 152, 0, 0.12);
+  color: #FF9800;
+}
+
+.reviewLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-top: $spacing-xs;
+  margin-bottom: 4rpx;
+}
+
+.reviewValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.addReviewBtn {
+  margin-top: $spacing-sm;
+  padding: $spacing-sm;
+  background: rgba(33, 150, 243, 0.08);
+  color: #1976D2;
+  border-radius: $radius-sm;
+  text-align: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+

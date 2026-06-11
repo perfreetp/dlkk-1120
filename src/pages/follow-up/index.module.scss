@@ -185,6 +185,55 @@
   color: $color-text-tertiary;
 }
 
+.followHealth {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 2rpx dashed $color-border;
+}
+
+.followHealthLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.followHealthChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.followHealthChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+  font-size: 22rpx;
+  background: rgba(255, 138, 155, 0.08);
+  color: $color-primary;
+}
+
+.followChipSevere {
+  background: rgba(244, 67, 54, 0.12);
+  color: #F44336;
+}
+
+.followChipModerate {
+  background: rgba(255, 152, 0, 0.12);
+  color: #FF9800;
+}
+
+.followChipMild {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.followBtnNext {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.12) 0%, rgba(79, 195, 247, 0.08) 100%);
+  color: #1976D2;
+  border: 2rpx solid #2196F3;
+}
+
 .followActions {
   display: flex;
   gap: $spacing-sm;

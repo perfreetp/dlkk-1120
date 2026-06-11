@@ -18,6 +18,7 @@ export default defineAppConfig({
     'pages/trends/index',
     'pages/health/index',
     'pages/health-edit/index',
+    'pages/health-timeline/index',
     'pages/follow-up/index',
     'pages/follow-up-edit/index'
   ],

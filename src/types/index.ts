@@ -130,6 +130,7 @@ export interface HealthEvent {
   medicines: MedicineItem[];
   description: string;
   relatedRecordIds: string[];
+  followUpIds: string[];
   photos: string[];
   createdBy: string;
   createdAt: number;
@@ -144,6 +145,17 @@ export interface FollowUpObservation {
   isDone: boolean;
 }
 
+export interface FollowUpReviewRecord {
+  id: string;
+  reviewedAt: number;
+  conclusion: string;
+  newAdvice: string;
+  nextStep: string;
+  continueObserve: boolean;
+  createdBy: string;
+  createdAt: number;
+}
+
 export interface FollowUpRecord {
   id: string;
   title: string;
@@ -154,6 +166,8 @@ export interface FollowUpRecord {
   observations: FollowUpObservation[];
   status: FollowUpStatus;
   result?: string;
+  healthEventIds: string[];
+  reviewRecords: FollowUpReviewRecord[];
   createdBy: string;
   createdAt: number;
   updatedAt: number;

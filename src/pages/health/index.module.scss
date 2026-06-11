@@ -150,6 +150,49 @@
   font-weight: $font-weight-medium;
 }
 
+.eventFollowUps {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 2rpx dashed $color-border;
+}
+
+.eventFollowUpsLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.eventFollowChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.eventFollowChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+  font-size: 22rpx;
+  background: rgba(33, 150, 243, 0.08);
+  color: #1976D2;
+}
+
+.eventFollowChipPending {
+  background: rgba(255, 152, 0, 0.12);
+  color: #FF9800;
+}
+
+.eventFollowChipOverdue {
+  background: rgba(244, 67, 54, 0.12);
+  color: #F44336;
+}
+
+.eventFollowChipDone {
+  background: rgba(76, 175, 80, 0.12);
+  color: #4CAF50;
+}
+
 .emptyCard {
   background: $color-bg-card;
   border-radius: $radius-lg;

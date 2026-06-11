@@ -4,7 +4,19 @@ import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useBabyStore } from '@/store/babyStore';
 import { formatFullDate, formatDateTime } from '@/utils';
-import type { FollowUpRecord, FollowUpStatus } from '@/types';
+import type { FollowUpRecord, FollowUpStatus, HealthEventType } from '@/types';
+
+const TYPE_META: Record<HealthEventType, { label: string; icon: string }> = {
+  fever: { label: '发热', icon: '🤒' },
+  rash: { label: '湿疹/皮疹', icon: '🔴' },
+  vomit: { label: '吐奶', icon: '🤮' },
+  diarrhea: { label: '腹泻', icon: '💩' },
+  cough: { label: '咳嗽', icon: '🗣️' },
+  cold: { label: '感冒', icon: '🤧' },
+  medicine: { label: '用药', icon: '💊' },
+  hospital: { label: '就医', icon: '🏥' },
+  other: { label: '其他', icon: '📝' }
+};
 
 const STATUS_LABEL: Record<FollowUpStatus, { label: string; cls: string }> = {
   pending: { label: '待随访', cls: styles.statusPending },
@@ -13,7 +25,7 @@ const STATUS_LABEL: Record<FollowUpStatus, { label: string; cls: string }> = {
 };
 
 const FollowUpPage: React.FC = () => {
-  const { followUps, refreshFollowUpStatus, toggleFollowUpObservation, deleteFollowUp, updateFollowUp } = useBabyStore();
+  const { followUps, healthEvents, refreshFollowUpStatus, toggleFollowUpObservation, deleteFollowUp, updateFollowUp, cloneFollowUpAsNext } = useBabyStore();
   const [activeStatus, setActiveStatus] = useState<FollowUpStatus | 'all'>('all');
 
   useDidShow(() => {
@@ -55,14 +67,32 @@ const FollowUpPage: React.FC = () => {
     });
   };
 
+  const handleCloneNext = (f: FollowUpRecord) => {
+    Taro.showModal({
+      title: '生成下一次随访',
+      content: '基于当前随访生成下一次？观察指标将重置为未完成',
+      success: (r) => {
+        if (!r.confirm) return;
+        const newId = cloneFollowUpAsNext(f.id);
+        if (newId) {
+          Taro.showToast({ title: '已生成', icon: 'success' });
+          setTimeout(() => Taro.navigateTo({ url: `/pages/follow-up-edit/index?id=${newId}` }), 500);
+        } else {
+          Taro.showToast({ title: '生成失败', icon: 'none' });
+        }
+      }
+    });
+  };
+
   const handleAction = (f: FollowUpRecord) => {
-    const items = ['查看/编辑', '标记已完成', '删除随访'];
+    const items = ['查看/编辑', '生成下一次随访', '标记已完成', '删除随访'];
     Taro.showActionSheet({
       itemList: items,
       success: (res) => {
         if (res.tapIndex === 0) handleEdit(f);
-        else if (res.tapIndex === 1) handleMarkDone(f);
-        else if (res.tapIndex === 2) handleDelete(f.id);
+        else if (res.tapIndex === 1) handleCloneNext(f);
+        else if (res.tapIndex === 2) handleMarkDone(f);
+        else if (res.tapIndex === 3) handleDelete(f.id);
       }
     });
   };
@@ -146,6 +176,33 @@ const FollowUpPage: React.FC = () => {
                   </View>
                 )}
 
+                {f.healthEventIds.length > 0 && (
+                  <View className={styles.followHealth}>
+                    <Text className={styles.followHealthLabel}>关联健康事件（{f.healthEventIds.length}）</Text>
+                    <View className={styles.followHealthChips}>
+                      {healthEvents.filter(h => f.healthEventIds.includes(h.id)).slice(0, 4).map(h => {
+                        const m = TYPE_META[h.type];
+                        const chipCls =
+                          h.severity === 'severe' ? styles.followChipSevere :
+                          h.severity === 'moderate' ? styles.followChipModerate :
+                          styles.followChipMild;
+                        return (
+                          <Text
+                            key={h.id}
+                            className={`${styles.followHealthChip} ${chipCls}`}
+                            onClick={(e) => { e.stopPropagation(); Taro.navigateTo({ url: `/pages/health-timeline/index?id=${h.id}` }); }}
+                          >
+                            {m.icon} {h.title || m.label}
+                          </Text>
+                        );
+                      })}
+                      {f.healthEventIds.length > 4 && (
+                        <Text className={styles.followHealthChip}>+{f.healthEventIds.length - 4}</Text>
+                      )}
+                    </View>
+                  </View>
+                )}
+
                 {f.status !== 'done' && (
                   <View className={styles.followActions}>
                     <View
@@ -155,10 +212,32 @@ const FollowUpPage: React.FC = () => {
                       标记完成
                     </View>
                     <View
+                      className={`${styles.followBtn} ${styles.followBtnNext}`}
+                      onClick={(e) => { e.stopPropagation(); handleCloneNext(f); }}
+                    >
+                      下一次随访
+                    </View>
+                    <View
                       className={`${styles.followBtn} ${styles.followBtnEdit}`}
                       onClick={(e) => { e.stopPropagation(); handleEdit(f); }}
                     >
                       编辑
+                    </View>
+                  </View>
+                )}
+                {f.status === 'done' && (
+                  <View className={styles.followActions}>
+                    <View
+                      className={`${styles.followBtn} ${styles.followBtnNext}`}
+                      onClick={(e) => { e.stopPropagation(); handleCloneNext(f); }}
+                    >
+                      生成下一次随访
+                    </View>
+                    <View
+                      className={`${styles.followBtn} ${styles.followBtnEdit}`}
+                      onClick={(e) => { e.stopPropagation(); handleEdit(f); }}
+                    >
+                      查看/编辑
                     </View>
                   </View>
                 )}

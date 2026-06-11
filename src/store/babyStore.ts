@@ -60,10 +60,14 @@ interface BabyState {
   addHealthEvent: (e: Omit<HealthEvent, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateHealthEvent: (id: string, updates: Partial<HealthEvent>) => void;
   deleteHealthEvent: (id: string) => void;
-  addFollowUp: (f: Omit<FollowUpRecord, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  addFollowUp: (f: Omit<FollowUpRecord, 'id' | 'createdAt' | 'updatedAt'>) => string | null;
   updateFollowUp: (id: string, updates: Partial<FollowUpRecord>) => void;
   toggleFollowUpObservation: (followUpId: string, obsId: string) => void;
   deleteFollowUp: (id: string) => void;
+  addFollowUpReview: (followUpId: string, review: Omit<FollowUpReviewRecord, 'id' | 'createdAt'>) => void;
+  cloneFollowUpAsNext: (followUpId: string, payload?: Partial<FollowUpRecord>) => string | null;
+  linkHealthEventAndFollowUp: (healthEventId: string, followUpId: string) => void;
+  unlinkHealthEventAndFollowUp: (healthEventId: string, followUpId: string) => void;
   refreshFollowUpStatus: () => void;
   toggleNightMode: () => void;
   getRecordsByType: (type: RecordType) => BabyRecord[];
@@ -256,6 +260,8 @@ export const useBabyStore = create<BabyState>((set, get) => ({
   addHealthEvent: (e) => set((state) => {
     const now = Date.now();
     const newEvent: HealthEvent = {
+      followUpIds: [],
+      photos: [],
       ...e,
       id: generateId(),
       createdAt: now,
@@ -280,18 +286,25 @@ export const useBabyStore = create<BabyState>((set, get) => ({
     return { healthEvents: list };
   }),
 
-  addFollowUp: (f) => set((state) => {
+  addFollowUp: (f) => {
     const now = Date.now();
+    const newId = generateId();
     const newF: FollowUpRecord = {
+      observations: [],
+      healthEventIds: [],
+      reviewRecords: [],
       ...f,
-      id: generateId(),
+      id: newId,
       createdAt: now,
       updatedAt: now
     };
-    const list = [newF, ...state.followUps].sort((a, b) => a.nextReviewAt - b.nextReviewAt);
-    saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
-    return { followUps: list };
-  }),
+    set((state) => {
+      const list = [newF, ...state.followUps].sort((a, b) => a.nextReviewAt - b.nextReviewAt);
+      saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
+      return { followUps: list };
+    });
+    return newId;
+  },
 
   updateFollowUp: (id, updates) => set((state) => {
     const list = state.followUps
@@ -328,5 +341,72 @@ export const useBabyStore = create<BabyState>((set, get) => ({
     });
     saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
     return { followUps: list };
+  }),
+
+  addFollowUpReview: (followUpId, review) => {
+    const now = Date.now();
+    set((state) => {
+      const list = state.followUps.map(f => {
+        if (f.id !== followUpId) return f;
+        return {
+          ...f,
+          reviewRecords: [
+            { ...review, id: generateId(), createdAt: now },
+            ...f.reviewRecords
+          ],
+          updatedAt: now
+        };
+      });
+      saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
+      return { followUps: list };
+    });
+  },
+
+  cloneFollowUpAsNext: (followUpId, payload) => {
+    const src = (useBabyStore.getState().followUps.find(f => f.id === followUpId));
+    if (!src) return null;
+    const now = Date.now();
+    const newId = generateId();
+    const newF: FollowUpRecord = {
+      ...src,
+      ...payload,
+      id: newId,
+      status: 'pending',
+      observations: src.observations.map(o => ({ ...o, isDone: false })),
+      result: undefined,
+      reviewRecords: [],
+      createdAt: now,
+      updatedAt: now
+    };
+    set((state) => {
+      const list = [newF, ...state.followUps].sort((a, b) => a.nextReviewAt - b.nextReviewAt);
+      saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
+      return { followUps: list };
+    });
+    return newId;
+  },
+
+  linkHealthEventAndFollowUp: (healthEventId, followUpId) => set((state) => {
+    const healthList = state.healthEvents.map(e => e.id === healthEventId
+      ? { ...e, followUpIds: Array.from(new Set([...e.followUpIds, followUpId])), updatedAt: Date.now() }
+      : e);
+    const followList = state.followUps.map(f => f.id === followUpId
+      ? { ...f, healthEventIds: Array.from(new Set([...f.healthEventIds, healthEventId])), updatedAt: Date.now() }
+      : f);
+    saveToStorage(STORAGE_KEYS.HEALTH_EVENTS, healthList);
+    saveToStorage(STORAGE_KEYS.FOLLOW_UPS, followList);
+    return { healthEvents: healthList, followUps: followList };
+  }),
+
+  unlinkHealthEventAndFollowUp: (healthEventId, followUpId) => set((state) => {
+    const healthList = state.healthEvents.map(e => e.id === healthEventId
+      ? { ...e, followUpIds: e.followUpIds.filter(id => id !== followUpId), updatedAt: Date.now() }
+      : e);
+    const followList = state.followUps.map(f => f.id === followUpId
+      ? { ...f, healthEventIds: f.healthEventIds.filter(id => id !== healthEventId), updatedAt: Date.now() }
+      : f);
+    saveToStorage(STORAGE_KEYS.HEALTH_EVENTS, healthList);
+    saveToStorage(STORAGE_KEYS.FOLLOW_UPS, followList);
+    return { healthEvents: healthList, followUps: followList };
   })
 }));

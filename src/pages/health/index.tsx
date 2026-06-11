@@ -22,8 +22,10 @@ const TYPE_META: Record<HealthEventType | 'all', { label: string; icon: string }
 const SEVERITY_LABEL = { mild: '轻微', moderate: '中度', severe: '严重' };
 
 const HealthPage: React.FC = () => {
-  const { healthEvents, records, deleteHealthEvent } = useBabyStore();
+  const { healthEvents, records, followUps, deleteHealthEvent, refreshFollowUpStatus } = useBabyStore();
   const [activeType, setActiveType] = useState<HealthEventType | 'all'>('all');
+
+  React.useEffect(() => { refreshFollowUpStatus(); }, []);
 
   const filteredEvents = useMemo(() => {
     if (activeType === 'all') return healthEvents;
@@ -36,16 +38,12 @@ const HealthPage: React.FC = () => {
 
   const handleEdit = (e: HealthEvent) => {
     Taro.showActionSheet({
-      itemList: ['查看详情', '时间线（关联记录）', '删除事件'],
+      itemList: ['查看详情', '打开事件时间线', '删除事件'],
       success: (res) => {
         if (res.tapIndex === 0) {
           Taro.navigateTo({ url: `/pages/health-edit/index?id=${e.id}` });
         } else if (res.tapIndex === 1) {
-          const related = records.filter(r => e.relatedRecordIds.includes(r.id));
-          const msg = related.length
-            ? `已关联 ${related.length} 条记录：\n${related.slice(0, 5).map(r => `${formatDateTime(r.timestamp)} ${r.type}`).join('\n')}${related.length > 5 ? `\n...还有 ${related.length - 5} 条` : ''}`
-            : '该事件尚未关联任何记录，可在编辑页添加';
-          Taro.showModal({ title: `${TYPE_META[e.type].icon} 时间线`, content: msg, showCancel: false });
+          Taro.navigateTo({ url: `/pages/health-timeline/index?id=${e.id}` });
         } else if (res.tapIndex === 2) {
           Taro.showModal({
             title: '删除事件',
@@ -140,6 +138,35 @@ const HealthPage: React.FC = () => {
                     {e.relatedRecordIds.length} 条喂养/睡眠/尿布记录
                   </Text>
                 </View>
+
+                {followUps.filter(f => e.followUpIds.includes(f.id)).length > 0 && (
+                  <View className={styles.eventFollowUps}>
+                    <Text className={styles.eventFollowUpsLabel}>
+                      关联随访（{followUps.filter(f => e.followUpIds.includes(f.id)).length}）：
+                    </Text>
+                    <View className={styles.eventFollowChips}>
+                      {followUps.filter(f => e.followUpIds.includes(f.id)).slice(0, 4).map(f => {
+                        const chipCls =
+                          f.status === 'pending' ? styles.eventFollowChipPending :
+                          f.status === 'overdue' ? styles.eventFollowChipOverdue :
+                          styles.eventFollowChipDone;
+                        const chipLabel =
+                          f.status === 'pending' ? '待随访' :
+                          f.status === 'overdue' ? '已逾期' : '已完成';
+                        return (
+                          <Text key={f.id} className={`${styles.eventFollowChip} ${chipCls}`}>
+                            📅 {f.title}（{chipLabel}）
+                          </Text>
+                        );
+                      })}
+                      {followUps.filter(f => e.followUpIds.includes(f.id)).length > 4 && (
+                        <Text className={styles.eventFollowChip}>
+                          +{followUps.filter(f => e.followUpIds.includes(f.id)).length - 4}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                )}
               </View>
             );
           })

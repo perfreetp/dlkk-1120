@@ -1,0 +1,279 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 120rpx;
+  background: $color-bg-page;
+}
+
+.eventHeader {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+  border-left: 6rpx solid $color-primary;
+}
+
+.eventHeaderSevere {
+  border-left-color: $color-error;
+}
+
+.eventHeaderModerate {
+  border-left-color: #FF9800;
+}
+
+.eventHeaderTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+  display: flex;
+  align-items: center;
+}
+
+.eventHeaderIcon {
+  font-size: 48rpx;
+  margin-right: $spacing-sm;
+}
+
+.eventHeaderMeta {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.eventHeaderRow {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  margin-top: $spacing-sm;
+}
+
+.eventTag {
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+  font-size: 22rpx;
+  font-weight: $font-weight-semibold;
+}
+
+.sevMild {
+  background: rgba(76, 175, 80, 0.12);
+  color: #4CAF50;
+}
+
+.sevModerate {
+  background: rgba(255, 152, 0, 0.12);
+  color: #FF9800;
+}
+
+.sevSevere {
+  background: rgba(244, 67, 54, 0.12);
+  color: #F44336;
+}
+
+.eventHeaderDesc {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 2rpx dashed $color-border;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.eventHeaderFollowUps {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 2rpx dashed $color-border;
+}
+
+.eventHeaderFollowLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.followLinkItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-xs $spacing-sm;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.followLinkText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.followLinkStatus {
+  font-size: 22rpx;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.followStatusPending {
+  background: rgba(255, 152, 0, 0.1);
+  color: #FF9800;
+}
+
+.followStatusOverdue {
+  background: rgba(244, 67, 54, 0.1);
+  color: #F44336;
+}
+
+.followStatusDone {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.dayGroup {
+  margin-bottom: $spacing-lg;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.dayDot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: $color-primary;
+  margin-right: $spacing-sm;
+  box-shadow: 0 0 0 6rpx rgba(255, 138, 155, 0.15);
+}
+
+.dayLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.dayCount {
+  margin-left: $spacing-sm;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timeLine {
+  position: relative;
+  padding-left: 36rpx;
+  margin-left: 9rpx;
+  border-left: 4rpx solid $color-border;
+}
+
+.timeItem {
+  position: relative;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-sm;
+  box-shadow: $shadow-card;
+}
+
+.timeItem::before {
+  content: '';
+  position: absolute;
+  left: -44rpx;
+  top: 32rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: $color-text-white;
+  border: 4rpx solid $color-primary;
+}
+
+.timeItemEvent::before {
+  background: $color-primary;
+  border-color: $color-secondary;
+}
+
+.timeItemMed::before {
+  border-color: #9C27B0;
+}
+
+.timeItem::after {
+  content: '';
+  position: absolute;
+  left: -28rpx;
+  top: 38rpx;
+  width: 16rpx;
+  height: 2rpx;
+  background: $color-border;
+}
+
+.timeItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+}
+
+.timeItemType {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+}
+
+.timeItemIcon {
+  margin-right: $spacing-xs;
+}
+
+.timeItemTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timeItemBody {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.timeItemBody strong {
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.timeItemDetailTag {
+  display: inline-block;
+  margin-top: $spacing-xs;
+  font-size: 22rpx;
+  color: $color-primary;
+}
+
+.emptyCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xxl $spacing-lg;
+  text-align: center;
+  box-shadow: $shadow-card;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.emptyDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+}

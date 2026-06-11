@@ -29,7 +29,7 @@ export default function HealthEdit() {
   const params = router.params;
   const editId = params?.id;
 
-  const { records, familyMembers, healthEvents, addHealthEvent, updateHealthEvent } = useBabyStore();
+  const { records, familyMembers, healthEvents, followUps, addHealthEvent, updateHealthEvent, linkHealthEventAndFollowUp, unlinkHealthEventAndFollowUp } = useBabyStore();
 
   const editing = useMemo(() => editId ? healthEvents.find(h => h.id === editId) : null, [editId, healthEvents]);
   const me = familyMembers[0];
@@ -47,6 +47,7 @@ export default function HealthEdit() {
   const [newMedDosage, setNewMedDosage] = useState('');
   const [description, setDescription] = useState(editing?.description || '');
   const [relatedIds, setRelatedIds] = useState<string[]>(editing?.relatedRecordIds || []);
+  const [followUpIds, setFollowUpIds] = useState<string[]>(editing?.followUpIds || []);
 
   useDidShow(() => {
     if (editing) Taro.setNavigationBarTitle({ title: '编辑健康事件' });
@@ -122,11 +123,16 @@ export default function HealthEdit() {
     setRelatedIds(relatedIds.includes(rid) ? relatedIds.filter(r => r !== rid) : [...relatedIds, rid]);
   };
 
+  const toggleFollowUp = (fid: string) => {
+    setFollowUpIds(followUpIds.includes(fid) ? followUpIds.filter(id => id !== fid) : [...followUpIds, fid]);
+  };
+
   const handleSubmit = () => {
     if (!title.trim() && TYPE_META[type]) setTitle(TYPE_META[type].defaultTitle);
+    const finalTitle = title.trim() || TYPE_META[type].defaultTitle;
     const payload = {
       type,
-      title: title.trim() || TYPE_META[type].defaultTitle,
+      title: finalTitle,
       startAt,
       endAt,
       severity,
@@ -135,16 +141,28 @@ export default function HealthEdit() {
       medicines,
       description: description.trim(),
       relatedRecordIds: relatedIds,
+      followUpIds,
       photos: editing?.photos || [],
       createdBy: editing?.createdBy || me?.name || '家人'
     };
+    const targetId = editing ? editing.id : undefined;
     if (editing) {
       updateHealthEvent(editing.id, payload);
     } else {
       addHealthEvent(payload);
     }
+    setTimeout(() => {
+      const store = useBabyStore.getState();
+      const created = editing ? editing.id : (store.healthEvents.find(h => h.title === finalTitle && h.startAt === startAt)?.id);
+      if (!created) return;
+      const oldIds = editing?.followUpIds || [];
+      const toAdd = followUpIds.filter(id => !oldIds.includes(id));
+      const toDel = oldIds.filter(id => !followUpIds.includes(id));
+      toAdd.forEach(fid => store.linkHealthEventAndFollowUp(created, fid));
+      toDel.forEach(fid => store.unlinkHealthEventAndFollowUp(created, fid));
+    }, 100);
     Taro.showToast({ title: editing ? '已更新' : '已记录', icon: 'success' });
-    setTimeout(() => Taro.navigateBack(), 500);
+    setTimeout(() => Taro.navigateBack(), 600);
   };
 
   const handleCancel = () => Taro.navigateBack();
@@ -329,6 +347,42 @@ export default function HealthEdit() {
                         <Text className={styles.relatedText}>{getRecordSummary(r)}</Text>
                       </Text>
                       <Text className={styles.relatedTime}>{formatDateTime(r.timestamp)}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
+        )}
+      </View>
+
+      <View className={styles.card}>
+        <Text className={styles.cardTitle}>关联随访{followUpIds.length > 0 && `（已关联 ${followUpIds.length}）`}</Text>
+        {followUps.length === 0 ? (
+          <Text style={{ fontSize: 24, color: '#999', padding: '16rpx 0' }}>还没有随访计划，可到随访中心创建</Text>
+        ) : (
+          <ScrollView scrollY style={{ maxHeight: 480 }}>
+            <View className={styles.relatedList}>
+              {followUps.map(f => {
+                const selected = followUpIds.includes(f.id);
+                const statusLabel = f.status === 'pending' ? '待随访' : f.status === 'overdue' ? '已逾期' : '已完成';
+                return (
+                  <View
+                    key={f.id}
+                    className={`${styles.relatedItem} ${selected ? styles.relatedItemSelected : ''}`}
+                    onClick={() => toggleFollowUp(f.id)}
+                  >
+                    <View className={`${styles.relatedCheck} ${selected ? styles.relatedCheckActive : ''}`}>
+                      {selected && <Text className={styles.relatedCheckIcon}>✓</Text>}
+                    </View>
+                    <View className={styles.relatedContent}>
+                      <Text>
+                        <Text className={styles.relatedType}>📅 随访</Text>
+                        <Text className={styles.relatedText}>{f.title}（{statusLabel}）</Text>
+                      </Text>
+                      <Text className={styles.relatedTime}>
+                        下次复查：{formatFullDate(f.nextReviewAt)} {formatDateTime(f.nextReviewAt, 'HH:mm')}
+                      </Text>
                     </View>
                   </View>
                 );
