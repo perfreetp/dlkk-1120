@@ -102,6 +102,63 @@ export interface HandoverRecord {
   updatedAt: number;
 }
 
+export type HealthEventType = 'fever' | 'rash' | 'vomit' | 'diarrhea' | 'cough' | 'cold' | 'medicine' | 'hospital' | 'other';
+export type HealthSeverity = 'mild' | 'moderate' | 'severe';
+
+export interface SymptomItem {
+  id: string;
+  name: string;
+  value?: string;
+}
+
+export interface MedicineItem {
+  id: string;
+  name: string;
+  dosage: string;
+  time?: string;
+}
+
+export interface HealthEvent {
+  id: string;
+  type: HealthEventType;
+  title: string;
+  startAt: number;
+  endAt?: number;
+  severity: HealthSeverity;
+  temperature?: number;
+  symptoms: SymptomItem[];
+  medicines: MedicineItem[];
+  description: string;
+  relatedRecordIds: string[];
+  photos: string[];
+  createdBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export type FollowUpStatus = 'pending' | 'done' | 'overdue';
+
+export interface FollowUpObservation {
+  id: string;
+  content: string;
+  isDone: boolean;
+}
+
+export interface FollowUpRecord {
+  id: string;
+  title: string;
+  reportStartDate?: string;
+  reportEndDate?: string;
+  doctorAdvice: string;
+  nextReviewAt: number;
+  observations: FollowUpObservation[];
+  status: FollowUpStatus;
+  result?: string;
+  createdBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface BabyInfo {
   name: string;
   gender: 'boy' | 'girl';

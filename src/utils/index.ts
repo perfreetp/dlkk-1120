@@ -136,23 +136,63 @@ export const aggregateByRange = (records: BabyRecord[], range: TimeRange): Aggre
 
   const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : undefined;
 
-  return Object.values(grouped)
-    .sort((a, b) => a.startTs - b.startTs)
-    .map(g => ({
-      label: g.label,
-      startTs: g.startTs,
-      endTs: g.endTs,
-      weight: avg(g.weights),
-      height: avg(g.heights),
-      headCircumference: avg(g.heads),
-      feedingAmount: g.feedingAmount,
-      feedingCount: g.feedingCount,
-      sleepSeconds: g.sleepSeconds,
-      sleepCount: g.sleepCount,
-      solidCount: g.solidCount,
-      diaperCount: g.diaperCount,
-      count: g.count
-    }));
+  const entries = Object.values(grouped).sort((a, b) => a.startTs - b.startTs);
+  if (entries.length === 0) return [];
+
+  const result: AggregatedStats[] = [];
+  const firstStart = entries[0].startTs;
+  const lastEnd = entries[entries.length - 1].endTs;
+  let curTs = firstStart;
+
+  while (curTs <= lastEnd) {
+    let curKey: string;
+    let curLabel: string;
+    let curStart: number;
+    let curEnd: number;
+    if (range === 'week') {
+      const s = dayjs(curTs).startOf('week');
+      curKey = s.format('GGGG[W]WW');
+      curLabel = getWeekLabel(curTs);
+      curStart = s.valueOf();
+      curEnd = dayjs(curTs).endOf('week').valueOf();
+    } else if (range === 'month') {
+      const s = dayjs(curTs).startOf('month');
+      curKey = s.format('YYYYMM');
+      curLabel = getMonthLabel(curTs);
+      curStart = s.valueOf();
+      curEnd = dayjs(curTs).endOf('month').valueOf();
+    } else {
+      const y = dayjs(curTs).year();
+      const q = Math.ceil((dayjs(curTs).month() + 1) / 3);
+      const startMonth = (q - 1) * 3;
+      const s = dayjs(new Date(y, startMonth, 1));
+      curKey = `${y}Q${q}`;
+      curLabel = `${y}Q${q}`;
+      curStart = s.valueOf();
+      curEnd = dayjs(new Date(y, startMonth + 3, 0)).endOf('day').valueOf();
+    }
+
+    const g = grouped[curKey];
+    result.push({
+      label: curLabel,
+      startTs: curStart,
+      endTs: curEnd,
+      weight: g ? avg(g.weights) : undefined,
+      height: g ? avg(g.heights) : undefined,
+      headCircumference: g ? avg(g.heads) : undefined,
+      feedingAmount: g ? g.feedingAmount : 0,
+      feedingCount: g ? g.feedingCount : 0,
+      sleepSeconds: g ? g.sleepSeconds : 0,
+      sleepCount: g ? g.sleepCount : 0,
+      solidCount: g ? g.solidCount : 0,
+      diaperCount: g ? g.diaperCount : 0,
+      count: g ? g.count : 0
+    });
+
+    curTs = curEnd + 1000;
+  }
+
+  return result;
 };
 
 export const getBabyAge = (birthday: number): string => {

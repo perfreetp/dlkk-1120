@@ -15,7 +15,11 @@ export default defineAppConfig({
     'pages/report-preview/index',
     'pages/family/index',
     'pages/handover-edit/index',
-    'pages/trends/index'
+    'pages/trends/index',
+    'pages/health/index',
+    'pages/health-edit/index',
+    'pages/follow-up/index',
+    'pages/follow-up-edit/index'
   ],
   window: {
     backgroundTextStyle: 'light',

@@ -642,6 +642,13 @@ const ReportPreviewPage: React.FC = () => {
         <View className={`${styles.btn} ${styles.btnSecondary}`} onClick={handleCopy}>
           复制报告
         </View>
+        <View className={`${styles.btn} ${styles.btnSecondary}`} onClick={() => {
+          Taro.navigateTo({
+            url: `/pages/follow-up-edit/index?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
+          });
+        }}>
+          建随访
+        </View>
         <View className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleShare}>
           分享给医生
         </View>

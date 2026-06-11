@@ -6,12 +6,14 @@ import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
 
 const MinePage: React.FC = () => {
-  const { babyInfo, records, reminders, familyMembers, isNightMode, toggleNightMode } = useBabyStore();
+  const { babyInfo, records, reminders, familyMembers, isNightMode, toggleNightMode, healthEvents, followUps } = useBabyStore();
 
   const menuGroups = [
     {
       items: [
         { icon: '👨‍👩‍👧', title: '家庭成员', path: '/pages/family/index', extra: `${familyMembers.length}人` },
+        { icon: '🩺', title: '健康事件', path: '/pages/health/index', extra: healthEvents.length ? `${healthEvents.length}条` : '' },
+        { icon: '📅', title: '随访计划', path: '/pages/follow-up/index', extra: followUps.filter(f => f.status !== 'done').length ? `${followUps.filter(f => f.status !== 'done').length}待访` : '' },
         { icon: '📤', title: '导出给医生', path: '/pages/export/index' },
         { icon: '📊', title: '统计分析', path: '/pages/statistics/index' },
         { icon: '📈', title: '长期趋势', path: '/pages/trends/index' }

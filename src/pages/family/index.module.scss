@@ -134,6 +134,24 @@
   color: $color-text-tertiary;
 }
 
+.handoverStatusTag {
+  padding: 4rpx 16rpx;
+  border-radius: $radius-xs;
+  font-size: 20rpx;
+  font-weight: $font-weight-semibold;
+  margin-right: $spacing-sm;
+}
+
+.handoverStatusDone {
+  background: rgba(76, 175, 80, 0.12);
+  color: #4CAF50;
+}
+
+.handoverStatusPending {
+  background: rgba(255, 152, 0, 0.12);
+  color: #FF9800;
+}
+
 .handoverSection {
   margin-bottom: $spacing-sm;
 }

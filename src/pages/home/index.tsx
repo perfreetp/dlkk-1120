@@ -15,9 +15,27 @@ import dayjs from 'dayjs';
 type DateRange = 'today' | 'week' | 'month';
 
 const HomePage: React.FC = () => {
-  const { babyInfo, records, deleteRecord, undoDelete } = useBabyStore();
+  const { babyInfo, records, deleteRecord, undoDelete, followUps, healthEvents, refreshFollowUpStatus } = useBabyStore();
   const [dateRange, setDateRange] = useState<DateRange>('today');
   const [showUndo, setShowUndo] = useState(false);
+
+  React.useEffect(() => {
+    refreshFollowUpStatus();
+  }, []);
+
+  const urgentFollowUps = useMemo(() => {
+    const now = Date.now();
+    return followUps
+      .filter(f => f.status !== 'done')
+      .filter(f => f.nextReviewAt - now < 7 * 86400000)
+      .slice(0, 2);
+  }, [followUps]);
+
+  const activeHealthEvents = useMemo(() => {
+    return healthEvents
+      .filter(e => !e.endAt || e.endAt > Date.now())
+      .slice(0, 2);
+  }, [healthEvents]);
 
   const todayStats = useMemo(() => {
     return calculateDailyStats(records, dayjs().format('YYYY-MM-DD'));
@@ -170,6 +188,53 @@ const HomePage: React.FC = () => {
           <QuickAction icon="📏" label="成长" onClick={() => Taro.navigateTo({ url: '/pages/growth-edit/index' })} />
           <QuickAction icon="📊" label="统计" onClick={() => Taro.navigateTo({ url: '/pages/statistics/index' })} />
         </View>
+
+        {(urgentFollowUps.length > 0 || activeHealthEvents.length > 0) && (
+          <View className={styles.healthAlertBox}>
+            {activeHealthEvents.map(e => {
+              const meta = { fever: '🤒 发热', rash: '🔴 湿疹', vomit: '🤮 吐奶', diarrhea: '💩 腹泻', cough: '🗣️ 咳嗽', cold: '🤧 感冒', medicine: '💊 用药', hospital: '🏥 就医', other: '📝 其他' }[e.type] || '📝 健康事件';
+              return (
+                <View
+                  key={e.id}
+                  className={`${styles.healthAlert} ${e.severity === 'severe' ? styles.healthAlertSevere : e.severity === 'moderate' ? styles.healthAlertModerate : ''}`}
+                  onClick={() => Taro.navigateTo({ url: `/pages/health-edit/index?id=${e.id}` })}
+                >
+                  <Text className={styles.healthAlertIcon}>{meta.split(' ')[0]}</Text>
+                  <View className={styles.healthAlertContent}>
+                    <Text className={styles.healthAlertTitle}>{e.title || meta.split(' ').slice(1).join(' ')}</Text>
+                    <Text className={styles.healthAlertSub}>
+                      {e.severity === 'severe' ? '严重' : e.severity === 'moderate' ? '中度' : '轻微'}
+                      {e.temperature ? ` · ${e.temperature}℃` : ''}
+                      {e.endAt ? ` · 已持续 ${Math.ceil((Date.now() - e.startAt) / 86400000)} 天` : ' · 进行中'}
+                    </Text>
+                  </View>
+                  <Text className={styles.healthAlertArrow}>›</Text>
+                </View>
+              );
+            })}
+            {urgentFollowUps.map(f => {
+              const overdue = f.status === 'overdue';
+              const diffDays = Math.ceil((f.nextReviewAt - Date.now()) / 86400000);
+              return (
+                <View
+                  key={f.id}
+                  className={`${styles.healthAlert} ${overdue ? styles.healthAlertSevere : styles.healthAlertFollow}`}
+                  onClick={() => Taro.navigateTo({ url: `/pages/follow-up-edit/index?id=${f.id}` })}
+                >
+                  <Text className={styles.healthAlertIcon}>📅</Text>
+                  <View className={styles.healthAlertContent}>
+                    <Text className={styles.healthAlertTitle}>{f.title}</Text>
+                    <Text className={styles.healthAlertSub}>
+                      {overdue ? `已逾期 ${-diffDays} 天` : diffDays <= 0 ? '今天复查' : `${diffDays} 天后复查`}
+                      {f.observations.length > 0 ? ` · 观察 ${f.observations.filter(o => !o.isDone).length}/${f.observations.length}` : ''}
+                    </Text>
+                  </View>
+                  <Text className={styles.healthAlertArrow}>›</Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
 
         <SectionHeader title="最近记录" actionText="查看全部" onAction={() => Taro.switchTab({ url: '/pages/record/index' })} />
         <View className={styles.recordsList}>

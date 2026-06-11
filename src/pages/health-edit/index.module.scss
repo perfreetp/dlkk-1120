@@ -1,0 +1,299 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 200rpx;
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.cardTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+
+.typeItem {
+  padding: $spacing-md $spacing-xs;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  text-align: center;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.typeItemActive {
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.08) 0%, rgba(255, 176, 136, 0.08) 100%);
+  border-color: $color-primary;
+}
+
+.typeItemIcon {
+  font-size: 40rpx;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.typeItemLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.typeItemActive .typeItemLabel {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.inputLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.textInput, .numberInput, .textareaInput {
+  width: 100%;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  box-sizing: border-box;
+}
+
+.numberInput {
+  text-align: right;
+}
+
+.textareaInput {
+  min-height: 180rpx;
+  line-height: 1.6;
+}
+
+.severityRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.severityItem {
+  flex: 1;
+  padding: $spacing-sm;
+  text-align: center;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  border: 3rpx solid transparent;
+}
+
+.severityMildActive {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: #4CAF50;
+  color: #4CAF50;
+  font-weight: $font-weight-semibold;
+}
+
+.severityModerateActive {
+  background: rgba(255, 152, 0, 0.1);
+  border-color: #FF9800;
+  color: #FF9800;
+  font-weight: $font-weight-semibold;
+}
+
+.severitySevereActive {
+  background: rgba(244, 67, 54, 0.1);
+  border-color: #F44336;
+  color: #F44336;
+  font-weight: $font-weight-semibold;
+}
+
+.timeRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.timeLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.timeValue {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.addItemRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.itemInput {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+}
+
+.addBtnSmall {
+  width: 72rpx;
+  height: 72rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-xs;
+}
+
+.listItemValue {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.listItemSub {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: $spacing-sm;
+}
+
+.listItemDel {
+  color: $color-error;
+  font-size: 36rpx;
+  padding: 0 $spacing-xs;
+}
+
+.relatedList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.relatedItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  border: 3rpx solid transparent;
+}
+
+.relatedItemSelected {
+  border-color: $color-primary;
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.05), rgba(255, 176, 136, 0.05));
+}
+
+.relatedCheck {
+  width: 36rpx;
+  height: 36rpx;
+  border: 3rpx solid $color-border;
+  border-radius: $radius-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.relatedCheckActive {
+  background: $color-primary;
+  border-color: $color-primary;
+}
+
+.relatedCheckIcon {
+  color: $color-text-white;
+  font-size: 22rpx;
+  font-weight: $font-weight-bold;
+}
+
+.relatedContent {
+  flex: 1;
+}
+
+.relatedType {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  margin-right: $spacing-xs;
+}
+
+.relatedText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.relatedTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.btn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btnCancel {
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.btnSubmit {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  box-shadow: 0 4rpx 16rpx rgba(255, 138, 155, 0.3);
+}

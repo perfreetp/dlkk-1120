@@ -5,19 +5,45 @@
   padding: $spacing-md $page-padding 160rpx;
 }
 
-.typeTabs {
+.topTabs {
   display: flex;
   background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: 6rpx;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.topTab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm $spacing-xs;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+}
+
+.topTabActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+  box-shadow: 0 4rpx 12rpx rgba(255, 138, 155, 0.3);
+}
+
+.typeTabs {
+  display: flex;
+  background: $color-bg-page;
   border-radius: $radius-button;
   padding: 6rpx;
-  margin-bottom: $spacing-lg;
-  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  gap: $spacing-xs;
 }
 
 .typeTab {
   flex: 1;
   text-align: center;
-  padding: $spacing-sm 0;
+  padding: $spacing-xs 0;
   border-radius: $radius-button;
   font-size: $font-size-sm;
   color: $color-text-secondary;
@@ -25,9 +51,77 @@
 }
 
 .typeTabActive {
-  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
-  color: $color-text-white;
+  background: $color-bg-card;
+  color: $color-primary;
   font-weight: $font-weight-semibold;
+  box-shadow: $shadow-card;
+}
+
+.overdueCard {
+  border-left: 6rpx solid $color-error;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 244, 247, 1) 100%);
+}
+
+.overdueTag {
+  margin-left: $spacing-xs;
+  padding: 2rpx 12rpx;
+  background: rgba(244, 67, 54, 0.12);
+  color: #F44336;
+  font-size: 20rpx;
+  border-radius: $radius-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.entryCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+}
+
+.entryIcon {
+  font-size: 60rpx;
+  flex-shrink: 0;
+}
+
+.entryContent {
+  flex: 1;
+}
+
+.entryTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.entryDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  display: block;
+}
+
+.entryText {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+  text-align: center;
+}
+
+.emptyEntry {
+  :global {
+    > view {
+      background: none !important;
+      box-shadow: none !important;
+    }
+  }
 }
 
 .reminderCard {

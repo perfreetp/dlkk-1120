@@ -1,0 +1,265 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 160rpx;
+  background: $color-bg-page;
+}
+
+.statusTabs {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  padding: 6rpx;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.statusTab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  transition: all $transition-base;
+  font-weight: $font-weight-medium;
+}
+
+.statusTabActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+  box-shadow: 0 4rpx 12rpx rgba(255, 138, 155, 0.3);
+}
+
+.followCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  border-left: 6rpx solid $color-primary;
+}
+
+.followCardOverdue {
+  border-left-color: $color-error;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 244, 247, 1) 100%);
+}
+
+.followCardDone {
+  border-left-color: #4CAF50;
+  opacity: 0.75;
+}
+
+.followHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+}
+
+.followTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  flex: 1;
+  padding-right: $spacing-sm;
+}
+
+.followStatus {
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+  font-size: 20rpx;
+  font-weight: $font-weight-semibold;
+  flex-shrink: 0;
+}
+
+.statusPending {
+  background: rgba(255, 152, 0, 0.12);
+  color: #FF9800;
+}
+
+.statusOverdue {
+  background: rgba(244, 67, 54, 0.12);
+  color: #F44336;
+}
+
+.statusDone {
+  background: rgba(76, 175, 80, 0.12);
+  color: #4CAF50;
+}
+
+.followMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-sm;
+}
+
+.followDateRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  margin-bottom: $spacing-sm;
+}
+
+.followDateLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.followDateValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.followDateOverdue {
+  color: $color-error;
+}
+
+.followAdvice {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.7;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  white-space: pre-wrap;
+  margin-bottom: $spacing-sm;
+}
+
+.followObs {
+  margin-top: $spacing-xs;
+}
+
+.followObsLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.followObsItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  background: $color-bg-hover;
+  border-radius: $radius-xs;
+  margin-bottom: $spacing-xs;
+}
+
+.followObsCheck {
+  width: 32rpx;
+  height: 32rpx;
+  border: 3rpx solid $color-border;
+  border-radius: $radius-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4rpx;
+}
+
+.followObsCheckDone {
+  background: $color-success;
+  border-color: $color-success;
+}
+
+.followObsCheckIcon {
+  color: $color-text-white;
+  font-size: 18rpx;
+  font-weight: $font-weight-bold;
+}
+
+.followObsText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.5;
+}
+
+.followObsTextDone {
+  text-decoration: line-through;
+  color: $color-text-tertiary;
+}
+
+.followActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.followBtn {
+  flex: 1;
+  height: 64rpx;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+}
+
+.followBtnDone {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.12) 0%, rgba(76, 175, 80, 0.08) 100%);
+  color: #4CAF50;
+  border: 2rpx solid #4CAF50;
+}
+
+.followBtnEdit {
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.emptyCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xxl $spacing-lg;
+  text-align: center;
+  box-shadow: $shadow-card;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.emptyDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.addBtn {
+  position: fixed;
+  right: $page-padding;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 138, 155, 0.4);
+  z-index: 10;
+}
+
+.addBtnText {
+  color: $color-text-white;
+  font-size: 56rpx;
+  font-weight: $font-weight-light;
+  line-height: 1;
+}

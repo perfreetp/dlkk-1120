@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import Taro from '@tarojs/taro';
-import type { BabyRecord, BabyInfo, Reminder, FamilyMember, RecordType, HandoverRecord } from '@/types';
+import type { BabyRecord, BabyInfo, Reminder, FamilyMember, RecordType, HandoverRecord, HealthEvent, FollowUpRecord, FollowUpObservation } from '@/types';
 import { mockRecords, mockBabyInfo, mockReminders, mockFamilyMembers } from '@/data/mockData';
 import { generateId } from '@/utils';
 
@@ -11,7 +11,9 @@ const STORAGE_KEYS = {
   FAMILY_MEMBERS: 'family_members',
   NIGHT_MODE: 'night_mode',
   IS_INITIALIZED: 'is_initialized',
-  HANDOVERS: 'baby_handovers'
+  HANDOVERS: 'baby_handovers',
+  HEALTH_EVENTS: 'baby_health_events',
+  FOLLOW_UPS: 'baby_follow_ups'
 };
 
 const loadFromStorage = <T>(key: string, defaultValue: T): T => {
@@ -38,6 +40,8 @@ interface BabyState {
   reminders: Reminder[];
   familyMembers: FamilyMember[];
   handovers: HandoverRecord[];
+  healthEvents: HealthEvent[];
+  followUps: FollowUpRecord[];
   isNightMode: boolean;
   lastDeletedRecord: BabyRecord | null;
   
@@ -53,6 +57,14 @@ interface BabyState {
   updateHandover: (id: string, updates: Partial<HandoverRecord>) => void;
   toggleHandoverTodo: (handoverId: string, todoId: string) => void;
   markHandoverRead: (id: string, memberName: string) => void;
+  addHealthEvent: (e: Omit<HealthEvent, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateHealthEvent: (id: string, updates: Partial<HealthEvent>) => void;
+  deleteHealthEvent: (id: string) => void;
+  addFollowUp: (f: Omit<FollowUpRecord, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateFollowUp: (id: string, updates: Partial<FollowUpRecord>) => void;
+  toggleFollowUpObservation: (followUpId: string, obsId: string) => void;
+  deleteFollowUp: (id: string) => void;
+  refreshFollowUpStatus: () => void;
   toggleNightMode: () => void;
   getRecordsByType: (type: RecordType) => BabyRecord[];
   getRecordsByDate: (date: string) => BabyRecord[];
@@ -67,6 +79,8 @@ const initFromStorage = () => {
       reminders: loadFromStorage(STORAGE_KEYS.REMINDERS, mockReminders),
       familyMembers: loadFromStorage(STORAGE_KEYS.FAMILY_MEMBERS, mockFamilyMembers),
       handovers: loadFromStorage<HandoverRecord[]>(STORAGE_KEYS.HANDOVERS, []),
+      healthEvents: loadFromStorage<HealthEvent[]>(STORAGE_KEYS.HEALTH_EVENTS, []),
+      followUps: loadFromStorage<FollowUpRecord[]>(STORAGE_KEYS.FOLLOW_UPS, []),
       isNightMode: loadFromStorage(STORAGE_KEYS.NIGHT_MODE, false)
     };
   }
@@ -75,6 +89,8 @@ const initFromStorage = () => {
   saveToStorage(STORAGE_KEYS.REMINDERS, mockReminders);
   saveToStorage(STORAGE_KEYS.FAMILY_MEMBERS, mockFamilyMembers);
   saveToStorage(STORAGE_KEYS.HANDOVERS, []);
+  saveToStorage(STORAGE_KEYS.HEALTH_EVENTS, []);
+  saveToStorage(STORAGE_KEYS.FOLLOW_UPS, []);
   saveToStorage(STORAGE_KEYS.IS_INITIALIZED, true);
   return {
     babyInfo: mockBabyInfo,
@@ -82,6 +98,8 @@ const initFromStorage = () => {
     reminders: mockReminders,
     familyMembers: mockFamilyMembers,
     handovers: [] as HandoverRecord[],
+    healthEvents: [] as HealthEvent[],
+    followUps: [] as FollowUpRecord[],
     isNightMode: false
   };
 };
@@ -94,6 +112,8 @@ export const useBabyStore = create<BabyState>((set, get) => ({
   reminders: initialData.reminders,
   familyMembers: initialData.familyMembers,
   handovers: initialData.handovers,
+  healthEvents: initialData.healthEvents,
+  followUps: initialData.followUps,
   isNightMode: initialData.isNightMode,
   lastDeletedRecord: null,
 
@@ -231,5 +251,82 @@ export const useBabyStore = create<BabyState>((set, get) => ({
     });
     saveToStorage(STORAGE_KEYS.HANDOVERS, newHandovers);
     return { handovers: newHandovers };
+  }),
+
+  addHealthEvent: (e) => set((state) => {
+    const now = Date.now();
+    const newEvent: HealthEvent = {
+      ...e,
+      id: generateId(),
+      createdAt: now,
+      updatedAt: now
+    };
+    const list = [newEvent, ...state.healthEvents].sort((a, b) => b.startAt - a.startAt);
+    saveToStorage(STORAGE_KEYS.HEALTH_EVENTS, list);
+    return { healthEvents: list };
+  }),
+
+  updateHealthEvent: (id, updates) => set((state) => {
+    const list = state.healthEvents
+      .map(e => e.id === id ? { ...e, ...updates, updatedAt: Date.now() } : e)
+      .sort((a, b) => b.startAt - a.startAt);
+    saveToStorage(STORAGE_KEYS.HEALTH_EVENTS, list);
+    return { healthEvents: list };
+  }),
+
+  deleteHealthEvent: (id) => set((state) => {
+    const list = state.healthEvents.filter(e => e.id !== id);
+    saveToStorage(STORAGE_KEYS.HEALTH_EVENTS, list);
+    return { healthEvents: list };
+  }),
+
+  addFollowUp: (f) => set((state) => {
+    const now = Date.now();
+    const newF: FollowUpRecord = {
+      ...f,
+      id: generateId(),
+      createdAt: now,
+      updatedAt: now
+    };
+    const list = [newF, ...state.followUps].sort((a, b) => a.nextReviewAt - b.nextReviewAt);
+    saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
+    return { followUps: list };
+  }),
+
+  updateFollowUp: (id, updates) => set((state) => {
+    const list = state.followUps
+      .map(f => f.id === id ? { ...f, ...updates, updatedAt: Date.now() } : f)
+      .sort((a, b) => a.nextReviewAt - b.nextReviewAt);
+    saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
+    return { followUps: list };
+  }),
+
+  toggleFollowUpObservation: (followUpId, obsId) => set((state) => {
+    const list = state.followUps.map(f => {
+      if (f.id !== followUpId) return f;
+      return {
+        ...f,
+        observations: f.observations.map(o => o.id === obsId ? { ...o, isDone: !o.isDone } : o),
+        updatedAt: Date.now()
+      };
+    });
+    saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
+    return { followUps: list };
+  }),
+
+  deleteFollowUp: (id) => set((state) => {
+    const list = state.followUps.filter(f => f.id !== id);
+    saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
+    return { followUps: list };
+  }),
+
+  refreshFollowUpStatus: () => set((state) => {
+    const now = Date.now();
+    const list = state.followUps.map(f => {
+      if (f.status === 'done') return f;
+      return { ...f, status: (now > f.nextReviewAt ? 'overdue' : 'pending') as 'overdue' | 'pending' };
+    });
+    saveToStorage(STORAGE_KEYS.FOLLOW_UPS, list);
+    return { followUps: list };
   })
 }));

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
-import Taro, { useDidShow } from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useBabyStore } from '@/store/babyStore';
 import { formatFullDate, formatDateTime } from '@/utils';
@@ -18,17 +18,6 @@ const FamilyPage: React.FC = () => {
     });
     return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
   }, [handovers]);
-
-  useDidShow(() => {
-    // 自动标记自己的已读（未读的）
-    if (me?.name) {
-      handovers.forEach(h => {
-        if (!h.readBy.includes(me.name) && h.fromMember !== me.name) {
-          markHandoverRead(h.id, me.name);
-        }
-      });
-    }
-  });
 
   const handleAddMember = () => {
     Taro.showActionSheet({
@@ -110,6 +99,7 @@ const FamilyPage: React.FC = () => {
               <Text className={styles.groupDate}>{date} 共 {list.length} 次交班</Text>
               {list.map(h => {
                 const isMeUnread = me && !h.readBy.includes(me.name) && h.fromMember !== me.name;
+                const allDone = h.todos.length > 0 && h.todos.every(t => t.isDone);
                 return (
                   <View key={h.id} className={`${styles.handoverCard} ${isMeUnread ? styles.handoverUnread : ''}`} onClick={() => handleEditHandover(h.id)}>
                     {isMeUnread && <View className={styles.unreadBadge} />}
@@ -118,6 +108,11 @@ const FamilyPage: React.FC = () => {
                         <Text className={styles.handoverFromName}>{h.fromMember}</Text>
                         <Text className={styles.handoverRole}>交班</Text>
                         {h.toMember && <Text className={styles.handoverTo}>→ {h.toMember}</Text>}
+                        {h.todos.length > 0 && (
+                          <Text className={`${styles.handoverStatusTag} ${allDone ? styles.handoverStatusDone : styles.handoverStatusPending}`}>
+                            {allDone ? '已办结' : `待办 ${h.todos.filter(t => !t.isDone).length}`}
+                          </Text>
+                        )}
                       </View>
                       <Text className={styles.handoverTime}>{formatDateTime(h.timestamp, 'HH:mm')}</Text>
                     </View>

@@ -1,0 +1,201 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 160rpx;
+  background: $color-bg-page;
+}
+
+.typeTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.typeChip {
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.typeChipActive {
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.1) 0%, rgba(255, 176, 136, 0.1) 100%);
+  border-color: $color-primary;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.eventCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  border-left: 6rpx solid $color-primary;
+}
+
+.eventSevere {
+  border-left-color: $color-error;
+}
+
+.eventModerate {
+  border-left-color: #FF9800;
+}
+
+.eventHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+}
+
+.eventIcon {
+  font-size: 44rpx;
+  margin-right: $spacing-sm;
+}
+
+.eventTitleWrap {
+  flex: 1;
+}
+
+.eventTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+}
+
+.eventTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.eventSeverityTag {
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+  font-size: 20rpx;
+  font-weight: $font-weight-semibold;
+  margin-left: $spacing-sm;
+}
+
+.sevMild {
+  background: rgba(76, 175, 80, 0.12);
+  color: #4CAF50;
+}
+
+.sevModerate {
+  background: rgba(255, 152, 0, 0.12);
+  color: #FF9800;
+}
+
+.sevSevere {
+  background: rgba(244, 67, 54, 0.12);
+  color: #F44336;
+}
+
+.eventRow {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  margin: $spacing-xs 0;
+}
+
+.eventItem {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  padding: 4rpx 12rpx;
+  background: $color-bg-hover;
+  border-radius: $radius-xs;
+}
+
+.eventItemPrimary {
+  color: $color-primary;
+  background: rgba(255, 138, 155, 0.08);
+}
+
+.eventDesc {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.7;
+  margin-top: $spacing-xs;
+  white-space: pre-wrap;
+}
+
+.eventRelated {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 2rpx dashed $color-border;
+}
+
+.eventRelatedLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.eventRelatedCount {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.emptyCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xxl $spacing-lg;
+  text-align: center;
+  box-shadow: $shadow-card;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.emptyDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.addBtn {
+  position: fixed;
+  right: $page-padding;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 138, 155, 0.4);
+  z-index: 10;
+}
+
+.addBtnText {
+  color: $color-text-white;
+  font-size: 56rpx;
+  font-weight: $font-weight-light;
+  line-height: 1;
+}

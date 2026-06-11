@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro, { useDidShow } from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
@@ -9,13 +9,34 @@ import EmptyState from '@/components/EmptyState';
 import type { RecordType, BabyRecord } from '@/types';
 import { formatDate, formatFullDate } from '@/utils';
 
-const typeOptions: { value: RecordType | 'all'; label: string }[] = [
-  { value: 'all', label: '全部' },
-  { value: 'feeding', label: '喂奶' },
-  { value: 'solid', label: '辅食' },
-  { value: 'diaper', label: '尿布' },
-  { value: 'sleep', label: '睡眠' }
+const typeOptions: { value: RecordType | 'all'; label: string; emptyText: string; emptyIcon: string }[] = [
+  { value: 'all', label: '全部', emptyText: '还没有记录，点击右下角添加', emptyIcon: '📝' },
+  { value: 'feeding', label: '喂奶', emptyText: '还没有喂奶记录，点击右下角开始记录', emptyIcon: '🍼' },
+  { value: 'solid', label: '辅食', emptyText: '还没有辅食记录，点击右下角添加', emptyIcon: '🥣' },
+  { value: 'diaper', label: '尿布', emptyText: '还没有尿布记录，点击右下角添加', emptyIcon: '🧷' },
+  { value: 'sleep', label: '睡眠', emptyText: '还没有睡眠记录，点击右下角添加', emptyIcon: '🌙' },
+  { value: 'growth', label: '成长', emptyText: '还没有成长记录，点击右下角测量身高体重', emptyIcon: '📏' }
 ];
+
+const addSheetMap: Record<string, string[]> = {
+  all: ['母乳左侧', '母乳右侧', '瓶喂', '配方奶', '辅食', '尿布', '睡眠', '成长'],
+  feeding: ['母乳左侧', '母乳右侧', '瓶喂', '配方奶'],
+  solid: ['辅食'],
+  diaper: ['尿布'],
+  sleep: ['睡眠'],
+  growth: ['成长']
+};
+
+const addUrlMap: Record<string, string> = {
+  '母乳左侧': '/pages/feeding-edit/index?subType=breast_left',
+  '母乳右侧': '/pages/feeding-edit/index?subType=breast_right',
+  '瓶喂': '/pages/feeding-edit/index?subType=bottle',
+  '配方奶': '/pages/feeding-edit/index?subType=formula',
+  '辅食': '/pages/solid-edit/index',
+  '尿布': '/pages/diaper-edit/index',
+  '睡眠': '/pages/sleep-edit/index',
+  '成长': '/pages/growth-edit/index'
+};
 
 const RecordPage: React.FC = () => {
   const { records, deleteRecord } = useBabyStore();
@@ -25,6 +46,8 @@ const RecordPage: React.FC = () => {
     if (activeType === 'all') return records;
     return records.filter((r) => r.type === activeType);
   }, [records, activeType]);
+
+  const currentTypeOption = typeOptions.find(o => o.value === activeType) || typeOptions[0];
 
   const groupedRecords = useMemo(() => {
     const groups: Record<string, BabyRecord[]> = {};
@@ -37,19 +60,16 @@ const RecordPage: React.FC = () => {
   }, [filteredRecords]);
 
   const handleAdd = () => {
+    const items = addSheetMap[activeType] || addSheetMap.all;
+    if (items.length === 1) {
+      Taro.navigateTo({ url: addUrlMap[items[0]] });
+      return;
+    }
     Taro.showActionSheet({
-      itemList: ['母乳左侧', '母乳右侧', '瓶喂', '配方奶', '辅食', '尿布', '睡眠'],
+      itemList: items,
       success: (res) => {
-        const pages = [
-          '/pages/feeding-edit/index?subType=breast_left',
-          '/pages/feeding-edit/index?subType=breast_right',
-          '/pages/feeding-edit/index?subType=bottle',
-          '/pages/feeding-edit/index?subType=formula',
-          '/pages/solid-edit/index',
-          '/pages/diaper-edit/index',
-          '/pages/sleep-edit/index'
-        ];
-        Taro.navigateTo({ url: pages[res.tapIndex] });
+        const url = addUrlMap[items[res.tapIndex]];
+        if (url) Taro.navigateTo({ url });
       }
     });
   };
@@ -110,7 +130,7 @@ const RecordPage: React.FC = () => {
             </View>
           ))
         ) : (
-          <EmptyState icon="📝" text="还没有记录，点击右下角添加" />
+          <EmptyState icon={currentTypeOption.emptyIcon} text={currentTypeOption.emptyText} />
         )}
       </ScrollView>
 
