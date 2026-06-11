@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, Textarea, Image, Picker } from '@tarojs/components';
+import { View, Text, Textarea, Image } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
@@ -76,6 +76,49 @@ const SleepEditPage: React.FC = () => {
     setPhotos(photos.filter((_, i) => i !== index));
   };
 
+  const handlePickDateTime = (target: 'start' | 'end') => {
+    const ts = target === 'start' ? startTime : endTime;
+    const dateStr = new Date(ts).toISOString().split('T')[0];
+    const timeStr = new Date(ts).toTimeString().slice(0, 5);
+    Taro.showActionSheet({
+      itemList: ['选择日期', '选择时间', '使用当前时间'],
+      success: (res) => {
+        const now = Date.now();
+        const _taro = Taro as any;
+        if (res.tapIndex === 0) {
+          _taro.showDatePicker?.({
+            format: 'YYYY-MM-DD',
+            currentDate: dateStr,
+            success: (dateRes: any) => {
+              const newDate = new Date(dateRes.detail.value || dateRes.value);
+              const oldDate = new Date(ts);
+              newDate.setHours(oldDate.getHours(), oldDate.getMinutes());
+              const newTs = newDate.getTime();
+              if (target === 'start') setStartTime(newTs);
+              else setEndTime(newTs);
+            }
+          }) || Taro.showToast({ title: '请手动设置', icon: 'none' });
+        } else if (res.tapIndex === 1) {
+          _taro.showTimePicker?.({
+            format: 'HH:mm',
+            currentTime: timeStr,
+            success: (timeRes: any) => {
+              const [hours, minutes] = (timeRes.detail.value || timeRes.value).split(':').map(Number);
+              const newDate = new Date(ts);
+              newDate.setHours(hours, minutes);
+              const newTs = newDate.getTime();
+              if (target === 'start') setStartTime(newTs);
+              else setEndTime(newTs);
+            }
+          }) || Taro.showToast({ title: '请手动设置', icon: 'none' });
+        } else if (res.tapIndex === 2) {
+          if (target === 'start') setStartTime(now);
+          else setEndTime(now);
+        }
+      }
+    });
+  };
+
   const handleSubmit = () => {
     if (duration < 60) {
       Taro.showToast({ title: '睡眠时间至少1分钟', icon: 'none' });
@@ -116,29 +159,16 @@ const SleepEditPage: React.FC = () => {
           <Text className={styles.durationValue}>{formatDuration(duration)}</Text>
         </View>
 
-        <Picker
-          mode="multiSelector"
-          value={[0, 0]}
-          onChange={(e) => console.log(e)}
-        >
-          <View className={styles.timeRow} onClick={() => {
-            Taro.showActionSheet({
-              itemList: ['使用当前时间为开始时间', '使用当前时间为结束时间'],
-              success: (res) => {
-                const now = Date.now();
-                if (res.tapIndex === 0) setStartTime(now);
-                else setEndTime(now);
-              }
-            });
-          }}>
-            <Text className={styles.timeLabel}>开始时间</Text>
-            <Text className={styles.timeValue}>{formatPickerValue(startTime)}</Text>
-          </View>
-        </Picker>
+        <View className={styles.timeRow} onClick={() => handlePickDateTime('start')}>
+          <Text className={styles.timeLabel}>开始时间</Text>
+          <Text className={styles.timeValue}>{formatPickerValue(startTime)}</Text>
+          <Text className={styles.timeArrow}>›</Text>
+        </View>
 
-        <View className={styles.timeRow} onClick={() => setEndTime(Date.now())}>
+        <View className={styles.timeRow} onClick={() => handlePickDateTime('end')}>
           <Text className={styles.timeLabel}>结束时间</Text>
           <Text className={styles.timeValue}>{formatPickerValue(endTime)}</Text>
+          <Text className={styles.timeArrow}>›</Text>
         </View>
       </View>
 

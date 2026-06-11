@@ -4,7 +4,7 @@ import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
-import { formatFullDate } from '@/utils';
+import { formatDateTime } from '@/utils';
 import type { GrowthRecord } from '@/types';
 
 const GrowthEditPage: React.FC = () => {
@@ -54,6 +54,42 @@ const GrowthEditPage: React.FC = () => {
 
   const handleDeletePhoto = (index: number) => {
     setPhotos(photos.filter((_, i) => i !== index));
+  };
+
+  const handleChooseTime = () => {
+    const dateStr = new Date(timestamp).toISOString().split('T')[0];
+    const timeStr = new Date(timestamp).toTimeString().slice(0, 5);
+    Taro.showActionSheet({
+      itemList: ['选择日期', '选择时间', '使用当前时间'],
+      success: (res) => {
+        const _taro = Taro as any;
+        if (res.tapIndex === 0) {
+          _taro.showDatePicker?.({
+            format: 'YYYY-MM-DD',
+            currentDate: dateStr,
+            success: (dateRes: any) => {
+              const newDate = new Date(dateRes.detail.value || dateRes.value);
+              const oldDate = new Date(timestamp);
+              newDate.setHours(oldDate.getHours(), oldDate.getMinutes());
+              setTimestamp(newDate.getTime());
+            }
+          }) || Taro.showToast({ title: '请手动设置', icon: 'none' });
+        } else if (res.tapIndex === 1) {
+          _taro.showTimePicker?.({
+            format: 'HH:mm',
+            currentTime: timeStr,
+            success: (timeRes: any) => {
+              const [hours, minutes] = (timeRes.detail.value || timeRes.value).split(':').map(Number);
+              const newDate = new Date(timestamp);
+              newDate.setHours(hours, minutes);
+              setTimestamp(newDate.getTime());
+            }
+          }) || Taro.showToast({ title: '请手动设置', icon: 'none' });
+        } else if (res.tapIndex === 2) {
+          setTimestamp(Date.now());
+        }
+      }
+    });
   };
 
   const handleSubmit = () => {
@@ -130,9 +166,12 @@ const GrowthEditPage: React.FC = () => {
           </View>
         </View>
 
-        <View className={styles.dateRow} onClick={() => setTimestamp(Date.now())}>
-          <Text className={styles.dateLabel}>测量日期</Text>
-          <Text className={styles.dateValue}>{formatFullDate(timestamp)}</Text>
+        <View className={styles.dateRow} onClick={handleChooseTime}>
+          <Text className={styles.dateLabel}>测量日期时间</Text>
+          <View style={{ display: 'flex', alignItems: 'center' }}>
+            <Text className={styles.dateValue}>{formatDateTime(timestamp)}</Text>
+            <Text style={{ color: '#c0c4cc', marginLeft: '8rpx', fontSize: '28rpx' }}>›</Text>
+          </View>
         </View>
       </View>
 

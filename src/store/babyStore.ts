@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import Taro from '@tarojs/taro';
-import type { BabyRecord, BabyInfo, Reminder, FamilyMember, RecordType } from '@/types';
+import type { BabyRecord, BabyInfo, Reminder, FamilyMember, RecordType, HandoverRecord } from '@/types';
 import { mockRecords, mockBabyInfo, mockReminders, mockFamilyMembers } from '@/data/mockData';
 import { generateId } from '@/utils';
 
@@ -10,7 +10,8 @@ const STORAGE_KEYS = {
   REMINDERS: 'baby_reminders',
   FAMILY_MEMBERS: 'family_members',
   NIGHT_MODE: 'night_mode',
-  IS_INITIALIZED: 'is_initialized'
+  IS_INITIALIZED: 'is_initialized',
+  HANDOVERS: 'baby_handovers'
 };
 
 const loadFromStorage = <T>(key: string, defaultValue: T): T => {
@@ -36,6 +37,7 @@ interface BabyState {
   records: BabyRecord[];
   reminders: Reminder[];
   familyMembers: FamilyMember[];
+  handovers: HandoverRecord[];
   isNightMode: boolean;
   lastDeletedRecord: BabyRecord | null;
   
@@ -47,6 +49,10 @@ interface BabyState {
   addReminder: (reminder: Omit<Reminder, 'id'>) => void;
   toggleReminder: (id: string) => void;
   deleteReminder: (id: string) => void;
+  addHandover: (h: Omit<HandoverRecord, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateHandover: (id: string, updates: Partial<HandoverRecord>) => void;
+  toggleHandoverTodo: (handoverId: string, todoId: string) => void;
+  markHandoverRead: (id: string, memberName: string) => void;
   toggleNightMode: () => void;
   getRecordsByType: (type: RecordType) => BabyRecord[];
   getRecordsByDate: (date: string) => BabyRecord[];
@@ -60,6 +66,7 @@ const initFromStorage = () => {
       records: loadFromStorage(STORAGE_KEYS.RECORDS, mockRecords),
       reminders: loadFromStorage(STORAGE_KEYS.REMINDERS, mockReminders),
       familyMembers: loadFromStorage(STORAGE_KEYS.FAMILY_MEMBERS, mockFamilyMembers),
+      handovers: loadFromStorage<HandoverRecord[]>(STORAGE_KEYS.HANDOVERS, []),
       isNightMode: loadFromStorage(STORAGE_KEYS.NIGHT_MODE, false)
     };
   }
@@ -67,12 +74,14 @@ const initFromStorage = () => {
   saveToStorage(STORAGE_KEYS.BABY_INFO, mockBabyInfo);
   saveToStorage(STORAGE_KEYS.REMINDERS, mockReminders);
   saveToStorage(STORAGE_KEYS.FAMILY_MEMBERS, mockFamilyMembers);
+  saveToStorage(STORAGE_KEYS.HANDOVERS, []);
   saveToStorage(STORAGE_KEYS.IS_INITIALIZED, true);
   return {
     babyInfo: mockBabyInfo,
     records: mockRecords,
     reminders: mockReminders,
     familyMembers: mockFamilyMembers,
+    handovers: [] as HandoverRecord[],
     isNightMode: false
   };
 };
@@ -84,6 +93,7 @@ export const useBabyStore = create<BabyState>((set, get) => ({
   records: initialData.records,
   reminders: initialData.reminders,
   familyMembers: initialData.familyMembers,
+  handovers: initialData.handovers,
   isNightMode: initialData.isNightMode,
   lastDeletedRecord: null,
 
@@ -110,9 +120,11 @@ export const useBabyStore = create<BabyState>((set, get) => ({
   },
 
   updateRecord: (id, updates) => set((state) => {
-    const newRecords = state.records.map((r) =>
-      r.id === id ? { ...r, ...updates, updatedAt: Date.now() } as BabyRecord : r
-    );
+    const newRecords = state.records
+      .map((r) =>
+        r.id === id ? { ...r, ...updates, updatedAt: Date.now() } as BabyRecord : r
+      )
+      .sort((a, b) => b.timestamp - a.timestamp);
     saveToStorage(STORAGE_KEYS.RECORDS, newRecords);
     return { records: newRecords };
   }),
@@ -172,5 +184,52 @@ export const useBabyStore = create<BabyState>((set, get) => ({
     const dayStart = new Date(date).setHours(0, 0, 0, 0);
     const dayEnd = new Date(date).setHours(23, 59, 59, 999);
     return get().records.filter((r) => r.timestamp >= dayStart && r.timestamp <= dayEnd);
-  }
+  },
+
+  addHandover: (h) => set((state) => {
+    const now = Date.now();
+    const newHandover: HandoverRecord = {
+      ...h,
+      id: generateId(),
+      createdAt: now,
+      updatedAt: now
+    };
+    const newHandovers = [newHandover, ...state.handovers].sort((a, b) => b.timestamp - a.timestamp);
+    saveToStorage(STORAGE_KEYS.HANDOVERS, newHandovers);
+    return { handovers: newHandovers };
+  }),
+
+  updateHandover: (id, updates) => set((state) => {
+    const newHandovers = state.handovers
+      .map((h) => h.id === id ? { ...h, ...updates, updatedAt: Date.now() } : h)
+      .sort((a, b) => b.timestamp - a.timestamp);
+    saveToStorage(STORAGE_KEYS.HANDOVERS, newHandovers);
+    return { handovers: newHandovers };
+  }),
+
+  toggleHandoverTodo: (handoverId, todoId) => set((state) => {
+    const newHandovers = state.handovers.map((h) => {
+      if (h.id !== handoverId) return h;
+      return {
+        ...h,
+        todos: h.todos.map((t) => t.id === todoId ? { ...t, isDone: !t.isDone } : t),
+        updatedAt: Date.now()
+      };
+    });
+    saveToStorage(STORAGE_KEYS.HANDOVERS, newHandovers);
+    return { handovers: newHandovers };
+  }),
+
+  markHandoverRead: (id, memberName) => set((state) => {
+    const newHandovers = state.handovers.map((h) => {
+      if (h.id !== id || h.readBy.includes(memberName)) return h;
+      return {
+        ...h,
+        readBy: [...h.readBy, memberName],
+        updatedAt: Date.now()
+      };
+    });
+    saveToStorage(STORAGE_KEYS.HANDOVERS, newHandovers);
+    return { handovers: newHandovers };
+  })
 }));

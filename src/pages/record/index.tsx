@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
@@ -8,7 +8,6 @@ import RecordItem from '@/components/RecordItem';
 import EmptyState from '@/components/EmptyState';
 import type { RecordType, BabyRecord } from '@/types';
 import { formatDate, formatFullDate } from '@/utils';
-import dayjs from 'dayjs';
 
 const typeOptions: { value: RecordType | 'all'; label: string }[] = [
   { value: 'all', label: '全部' },

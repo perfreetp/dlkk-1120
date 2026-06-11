@@ -121,6 +121,72 @@
   font-weight: $font-weight-medium;
 }
 
+.templateList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.templateItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.templateItemActive {
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.1) 0%, rgba(255, 176, 136, 0.1) 100%);
+  border-color: $color-primary;
+}
+
+.templateIcon {
+  font-size: 48rpx;
+  margin-right: $spacing-md;
+}
+
+.templateInfo {
+  flex: 1;
+}
+
+.templateLabel {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  margin-bottom: 4rpx;
+  display: block;
+}
+
+.templateDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.radio {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 3rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+}
+
+.radioActive {
+  background: $color-primary;
+  border-color: $color-primary;
+}
+
+.radioCheck {
+  color: $color-text-white;
+  font-size: 22rpx;
+  font-weight: $font-weight-bold;
+}
+
 .formatList {
   display: flex;
   gap: $spacing-md;

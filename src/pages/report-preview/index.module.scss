@@ -12,6 +12,32 @@
   padding: $spacing-lg;
   margin-bottom: $spacing-md;
   box-shadow: $shadow-card;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+}
+
+.highlightCard {
+  border-color: $color-primary;
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.04) 0%, rgba(255, 176, 136, 0.04) 100%);
+}
+
+.highlightTag {
+  margin-left: $spacing-xs;
+  padding: 4rpx 12rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  font-size: 20rpx;
+  border-radius: 16rpx;
+  font-weight: $font-weight-medium;
+}
+
+.subSectionTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  margin: $spacing-md 0 $spacing-sm;
+  padding-left: $spacing-sm;
+  border-left: 6rpx solid $color-primary;
 }
 
 .reportHeader {

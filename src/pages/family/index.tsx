@@ -1,12 +1,34 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useBabyStore } from '@/store/babyStore';
-import { formatFullDate } from '@/utils';
+import { formatFullDate, formatDateTime } from '@/utils';
 
 const FamilyPage: React.FC = () => {
-  const { familyMembers } = useBabyStore();
+  const { familyMembers, handovers, markHandoverRead, toggleHandoverTodo } = useBabyStore();
+  const me = familyMembers[0];
+
+  const groupedHandovers = useMemo(() => {
+    const groups: Record<string, typeof handovers> = {};
+    handovers.forEach(h => {
+      const key = formatDateTime(h.timestamp, 'YYYY-MM-DD');
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(h);
+    });
+    return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
+  }, [handovers]);
+
+  useDidShow(() => {
+    // 自动标记自己的已读（未读的）
+    if (me?.name) {
+      handovers.forEach(h => {
+        if (!h.readBy.includes(me.name) && h.fromMember !== me.name) {
+          markHandoverRead(h.id, me.name);
+        }
+      });
+    }
+  });
 
   const handleAddMember = () => {
     Taro.showActionSheet({
@@ -38,9 +60,122 @@ const FamilyPage: React.FC = () => {
     });
   };
 
+  const handleAddHandover = () => {
+    Taro.navigateTo({ url: '/pages/handover-edit/index' });
+  };
+
+  const handleEditHandover = (id: string) => {
+    Taro.navigateTo({ url: `/pages/handover-edit/index?id=${id}` });
+  };
+
+  const handleMarkRead = (id: string) => {
+    if (me?.name) {
+      markHandoverRead(id, me.name);
+      Taro.showToast({ title: '已确认', icon: 'success' });
+    }
+  };
+
+  const handleToggleTodo = (handoverId: string, todoId: string) => {
+    toggleHandoverTodo(handoverId, todoId);
+  };
+
+  const getReadStatus = (h: typeof handovers[0]) => {
+    if (!me?.name) return '';
+    const unread = familyMembers
+      .filter(m => m.role !== '管理员' || m.name !== h.fromMember)
+      .filter(m => !h.readBy.includes(m.name) && m.name !== h.fromMember);
+    if (unread.length === 0) return '全员已读';
+    return `待读 ${unread.map(m => m.name).join('、')}`;
+  };
+
   return (
     <View className={styles.page}>
       <ScrollView scrollY>
+        <View className={styles.sectionHeader}>
+          <Text className={styles.sectionTitle}>交接班记录</Text>
+          <View className={styles.addBtn} onClick={handleAddHandover}>
+            <Text className={styles.addBtnText}>+ 写交班</Text>
+          </View>
+        </View>
+
+        {groupedHandovers.length === 0 ? (
+          <View className={styles.emptyCard}>
+            <Text className={styles.emptyIcon}>📋</Text>
+            <Text className={styles.emptyTitle}>暂无交接班记录</Text>
+            <Text className={styles.emptyDesc}>月嫂或家人交班时写一下今日重点，其他成员进来就能看到</Text>
+          </View>
+        ) : (
+          groupedHandovers.map(([date, list]) => (
+            <View key={date}>
+              <Text className={styles.groupDate}>{date} 共 {list.length} 次交班</Text>
+              {list.map(h => {
+                const isMeUnread = me && !h.readBy.includes(me.name) && h.fromMember !== me.name;
+                return (
+                  <View key={h.id} className={`${styles.handoverCard} ${isMeUnread ? styles.handoverUnread : ''}`} onClick={() => handleEditHandover(h.id)}>
+                    {isMeUnread && <View className={styles.unreadBadge} />}
+                    <View className={styles.handoverHeader}>
+                      <View className={styles.handoverFrom}>
+                        <Text className={styles.handoverFromName}>{h.fromMember}</Text>
+                        <Text className={styles.handoverRole}>交班</Text>
+                        {h.toMember && <Text className={styles.handoverTo}>→ {h.toMember}</Text>}
+                      </View>
+                      <Text className={styles.handoverTime}>{formatDateTime(h.timestamp, 'HH:mm')}</Text>
+                    </View>
+
+                    {h.keyPoints && (
+                      <View className={styles.handoverSection}>
+                        <Text className={styles.handoverSectionLabel}>📌 今日重点</Text>
+                        <Text className={styles.handoverSectionText}>{h.keyPoints}</Text>
+                      </View>
+                    )}
+
+                    {h.exceptions && (
+                      <View className={styles.handoverSection}>
+                        <Text className={styles.handoverSectionLabel}>⚠️ 异常情况</Text>
+                        <Text className={`${styles.handoverSectionText} ${styles.handoverException}`}>{h.exceptions}</Text>
+                      </View>
+                    )}
+
+                    {h.todos.length > 0 && (
+                      <View className={styles.handoverSection}>
+                        <Text className={styles.handoverSectionLabel}>📋 待办 ({h.todos.filter(t => !t.isDone).length}/{h.todos.length})</Text>
+                        <View className={styles.todoListInline}>
+                          {h.todos.map(t => (
+                            <View
+                              key={t.id}
+                              className={`${styles.todoItemInline} ${t.isDone ? styles.todoItemDone : ''}`}
+                              onClick={(e) => { e.stopPropagation(); handleToggleTodo(h.id, t.id); }}
+                            >
+                              <Text className={styles.todoCheckInline}>{t.isDone ? '✅' : '◻️'}</Text>
+                              <Text className={styles.todoTextInline}>{t.content}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    )}
+
+                    <View className={styles.handoverFooter}>
+                      <Text className={styles.handoverReadStatus}>{getReadStatus(h)}</Text>
+                      {isMeUnread && (
+                        <View
+                          className={styles.markReadBtn}
+                          onClick={(e) => { e.stopPropagation(); handleMarkRead(h.id); }}
+                        >
+                          <Text>确认已读</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ))
+        )}
+
+        <View className={styles.sectionHeader} style={{ marginTop: 40 }}>
+          <Text className={styles.sectionTitle}>家庭成员</Text>
+        </View>
+
         {familyMembers.map((member) => (
           <View key={member.id} className={styles.memberCard}>
             <Image className={styles.avatar} src={member.avatar} mode="aspectFill" />

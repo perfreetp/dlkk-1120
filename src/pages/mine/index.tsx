@@ -13,7 +13,8 @@ const MinePage: React.FC = () => {
       items: [
         { icon: '👨‍👩‍👧', title: '家庭成员', path: '/pages/family/index', extra: `${familyMembers.length}人` },
         { icon: '📤', title: '导出给医生', path: '/pages/export/index' },
-        { icon: '📊', title: '统计分析', path: '/pages/statistics/index' }
+        { icon: '📊', title: '统计分析', path: '/pages/statistics/index' },
+        { icon: '📈', title: '长期趋势', path: '/pages/trends/index' }
       ]
     },
     {

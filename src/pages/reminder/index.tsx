@@ -1,12 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useBabyStore } from '@/store/babyStore';
 import EmptyState from '@/components/EmptyState';
-import type { Reminder } from '@/types';
-import { formatFullDate, formatDateTime } from '@/utils';
+import { formatFullDate } from '@/utils';
 
 type FilterType = 'all' | 'vaccine' | 'checkup' | 'custom';
 

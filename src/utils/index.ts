@@ -23,12 +23,136 @@ export const formatDate = (timestamp: number): string => {
   return dayjs(timestamp).format('YYYY-MM-DD');
 };
 
-export const formatDateTime = (timestamp: number): string => {
-  return dayjs(timestamp).format('MM-DD HH:mm');
+export const formatDateTime = (timestamp: number, pattern?: string): string => {
+  return dayjs(timestamp).format(pattern || 'MM-DD HH:mm');
 };
 
 export const formatFullDate = (timestamp: number): string => {
   return dayjs(timestamp).format('YYYY年MM月DD日');
+};
+
+export const getWeekLabel = (timestamp: number): string => {
+  const start = dayjs(timestamp).startOf('week').format('MM/DD');
+  const end = dayjs(timestamp).endOf('week').format('MM/DD');
+  return `${start}-${end}`;
+};
+
+export const getMonthLabel = (timestamp: number): string => {
+  return dayjs(timestamp).format('YYYY/MM');
+};
+
+export const getQuarterLabel = (timestamp: number): string => {
+  const y = dayjs(timestamp).format('YYYY');
+  const q = Math.ceil((dayjs(timestamp).month() + 1) / 3);
+  return `${y}Q${q}`;
+};
+
+export type TimeRange = 'week' | 'month' | 'quarter';
+
+export interface AggregatedStats {
+  label: string;
+  startTs: number;
+  endTs: number;
+  weight?: number;
+  height?: number;
+  headCircumference?: number;
+  feedingAmount: number;
+  feedingCount: number;
+  sleepSeconds: number;
+  sleepCount: number;
+  solidCount: number;
+  diaperCount: number;
+  count: number;
+}
+
+export const aggregateByRange = (records: BabyRecord[], range: TimeRange): AggregatedStats[] => {
+  const grouped: Record<string, {
+    label: string; startTs: number; endTs: number;
+    weights: number[]; heights: number[]; heads: number[];
+    feedingAmount: number; feedingCount: number;
+    sleepSeconds: number; sleepCount: number;
+    solidCount: number; diaperCount: number; count: number;
+  }> = {};
+
+  records.forEach(r => {
+    let key = '';
+    let label = '';
+    let startTs: number;
+    let endTs: number;
+    if (range === 'week') {
+      const s = dayjs(r.timestamp).startOf('week');
+      key = s.format('GGGG[W]WW');
+      label = getWeekLabel(r.timestamp);
+      startTs = s.valueOf();
+      endTs = dayjs(r.timestamp).endOf('week').valueOf();
+    } else if (range === 'month') {
+      const s = dayjs(r.timestamp).startOf('month');
+      key = s.format('YYYYMM');
+      label = getMonthLabel(r.timestamp);
+      startTs = s.valueOf();
+      endTs = dayjs(r.timestamp).endOf('month').valueOf();
+    } else {
+      const y = dayjs(r.timestamp).year();
+      const q = Math.ceil((dayjs(r.timestamp).month() + 1) / 3);
+      const startMonth = (q - 1) * 3;
+      const endMonth = startMonth + 2;
+      const s = dayjs(new Date(y, startMonth, 1));
+      key = `${y}Q${q}`;
+      label = `${y}Q${q}`;
+      startTs = s.valueOf();
+      endTs = dayjs(new Date(y, endMonth + 1, 0)).endOf('day').valueOf();
+    }
+
+    if (!grouped[key]) {
+      grouped[key] = {
+        label, startTs, endTs,
+        weights: [], heights: [], heads: [],
+        feedingAmount: 0, feedingCount: 0,
+        sleepSeconds: 0, sleepCount: 0,
+        solidCount: 0, diaperCount: 0, count: 0
+      };
+    }
+    const g = grouped[key];
+    g.count++;
+
+    if (r.type === 'growth') {
+      if (r.weight) g.weights.push(r.weight);
+      if (r.height) g.heights.push(r.height);
+      if (r.headCircumference) g.heads.push(r.headCircumference);
+    } else if (r.type === 'feeding') {
+      g.feedingCount++;
+      if (r.subType === 'bottle' || r.subType === 'formula') {
+        g.feedingAmount += r.amount || 0;
+      }
+    } else if (r.type === 'sleep') {
+      g.sleepCount++;
+      g.sleepSeconds += (r.endTime - r.startTime) / 1000;
+    } else if (r.type === 'solid') {
+      g.solidCount++;
+    } else if (r.type === 'diaper') {
+      g.diaperCount++;
+    }
+  });
+
+  const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : undefined;
+
+  return Object.values(grouped)
+    .sort((a, b) => a.startTs - b.startTs)
+    .map(g => ({
+      label: g.label,
+      startTs: g.startTs,
+      endTs: g.endTs,
+      weight: avg(g.weights),
+      height: avg(g.heights),
+      headCircumference: avg(g.heads),
+      feedingAmount: g.feedingAmount,
+      feedingCount: g.feedingCount,
+      sleepSeconds: g.sleepSeconds,
+      sleepCount: g.sleepCount,
+      solidCount: g.solidCount,
+      diaperCount: g.diaperCount,
+      count: g.count
+    }));
 };
 
 export const getBabyAge = (birthday: number): string => {

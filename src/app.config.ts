@@ -13,7 +13,9 @@ export default defineAppConfig({
     'pages/statistics/index',
     'pages/export/index',
     'pages/report-preview/index',
-    'pages/family/index'
+    'pages/family/index',
+    'pages/handover-edit/index',
+    'pages/trends/index'
   ],
   window: {
     backgroundTextStyle: 'light',

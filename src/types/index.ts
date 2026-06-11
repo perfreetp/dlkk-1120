@@ -82,6 +82,26 @@ export interface FamilyMember {
   joinedAt: number;
 }
 
+export interface HandoverTodo {
+  id: string;
+  content: string;
+  isDone: boolean;
+}
+
+export interface HandoverRecord {
+  id: string;
+  fromMember: string;
+  toMember?: string;
+  timestamp: number;
+  keyPoints: string;
+  exceptions: string;
+  todos: HandoverTodo[];
+  readBy: string[];
+  createdBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface BabyInfo {
   name: string;
   gender: 'boy' | 'girl';

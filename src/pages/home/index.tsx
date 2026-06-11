@@ -9,13 +9,13 @@ import QuickAction from '@/components/QuickAction';
 import SectionHeader from '@/components/SectionHeader';
 import RecordItem from '@/components/RecordItem';
 import EmptyState from '@/components/EmptyState';
-import { getBabyAge, getTimeAgo, calculateDailyStats, formatDuration } from '@/utils';
+import { getBabyAge, getTimeAgo, calculateDailyStats, getMonthDateList } from '@/utils';
 import dayjs from 'dayjs';
 
 type DateRange = 'today' | 'week' | 'month';
 
 const HomePage: React.FC = () => {
-  const { babyInfo, records, deleteRecord, undoDelete, lastDeletedRecord, isNightMode } = useBabyStore();
+  const { babyInfo, records, deleteRecord, undoDelete } = useBabyStore();
   const [dateRange, setDateRange] = useState<DateRange>('today');
   const [showUndo, setShowUndo] = useState(false);
 
@@ -35,12 +35,28 @@ const HomePage: React.FC = () => {
     return { feeding, solid, diaper, sleep };
   }, [records]);
 
+  const monthStats = useMemo(() => {
+    let feeding = 0, solid = 0, diaper = 0, sleep = 0;
+    const monthDates = getMonthDateList();
+    const today = dayjs().format('YYYY-MM-DD');
+    monthDates.forEach((date) => {
+      if (date <= today) {
+        const stats = calculateDailyStats(records, date);
+        feeding += stats.feedingCount;
+        solid += stats.solidCount;
+        diaper += stats.diaperCount;
+        sleep += stats.sleepTotalDuration;
+      }
+    });
+    return { feeding, solid, diaper, sleep };
+  }, [records]);
+
   const displayStats = dateRange === 'today' ? {
     feeding: todayStats.feedingCount,
     solid: todayStats.solidCount,
     diaper: todayStats.diaperCount,
     sleep: todayStats.sleepTotalDuration
-  } : weekStats;
+  } : dateRange === 'week' ? weekStats : monthStats;
 
   const lastRecord = records[0];
 
@@ -132,7 +148,12 @@ const HomePage: React.FC = () => {
           <StatCard
             icon="😴"
             type="sleep"
-            value={dateRange === 'today' ? Math.round(todayStats.sleepTotalDuration / 3600 * 10) / 10 : Math.round(weekStats.sleep / 3600 * 10) / 10}
+            value={dateRange === 'today'
+              ? Math.round(todayStats.sleepTotalDuration / 3600 * 10) / 10
+              : dateRange === 'week'
+                ? Math.round(weekStats.sleep / 3600 * 10) / 10
+                : Math.round(monthStats.sleep / 3600 * 10) / 10
+            }
             unit="小时"
             label="睡眠"
           />

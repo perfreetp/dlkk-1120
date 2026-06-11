@@ -1,0 +1,150 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 160rpx;
+  background: $color-bg-page;
+}
+
+.rangeTabs {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  padding: 6rpx;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.rangeTab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  transition: all $transition-base;
+  font-weight: $font-weight-medium;
+}
+
+.rangeTabActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+  box-shadow: 0 4rpx 12rpx rgba(255, 138, 155, 0.3);
+}
+
+.summaryRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.summaryCard {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.summaryLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.summaryValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.summaryUnit {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-normal;
+  margin-left: 4rpx;
+}
+
+.summaryChange {
+  font-size: $font-size-xs;
+  margin-top: 4rpx;
+}
+
+.summaryChangeUp {
+  color: $color-success;
+}
+
+.summaryChangeDown {
+  color: $color-error;
+}
+
+.metricFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.metricChip {
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  border: 2rpx solid $color-border;
+  transition: all $transition-base;
+}
+
+.metricChipActive {
+  border-width: 2rpx;
+  font-weight: $font-weight-semibold;
+}
+
+.emptyTrend {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xxl $spacing-lg;
+  text-align: center;
+  box-shadow: $shadow-card;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.emptyDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.tipCard {
+  background: linear-gradient(135deg, rgba(255, 138, 155, 0.08) 0%, rgba(255, 176, 136, 0.08) 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.tipTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.tipText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
